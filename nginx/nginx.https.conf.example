@@ -1,0 +1,100 @@
+# =====================================================================================
+# HTTPS-вариант nginx.conf. Как включить — docs/DEPLOY_TLS.md.
+#   1. Замените example.com на свой домен (3 места: server_name ×2, пути сертификата).
+#   2. Выпустите сертификат (certbot) — без файлов сертификата Nginx не стартует.
+#   3. Скопируйте файл поверх nginx/nginx.conf и запустите: docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d
+# CSP, заголовки, прокси и кэш статики — те же, что в nginx.conf (это тестируется: tests/test_deploy_config.py).
+# =====================================================================================
+
+# Content-Security-Policy. map лежит на уровне http (этот файл подключается из conf.d) и выбирает политику по URI.
+#
+# Публичный сайт: ничего внешнего, кроме Яндекс.Метрики (директивы — по официальной инструкции Яндекса
+# «Установка счётчика на сайт с CSP», вариант с внешним файлом тега). Не используете Метрику — удалите
+# mc.yandex.ru / yastatic.net / blob: и директивы child-src, frame-src.
+#
+# Админка (/admin): дополнительно style-src 'unsafe-inline' — дашборд задаёт высоту столбцов графика
+# inline-стилем. Скриптов inline нет нигде, script-src строгий и там.
+map $uri $csp_policy {
+    default "default-src 'self'; script-src 'self' https://mc.yandex.ru https://yastatic.net; style-src 'self'; img-src 'self' data: https://mc.yandex.ru; font-src 'self'; connect-src 'self' https://mc.yandex.ru; child-src blob: https://mc.yandex.ru; frame-src blob: https://mc.yandex.ru; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
+    ~^/admin "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
+}
+
+# Порт 80: только ACME-проверка Let's Encrypt и редирект на HTTPS.
+server {
+    listen 80;
+    server_name example.com www.example.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://example.com$request_uri;
+    }
+}
+
+# www -> без www (один канонический адрес: canonical/sitemap/og построены на DOMAIN)
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name www.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    return 301 https://example.com$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    add_header Strict-Transport-Security "max-age=300" always;
+
+
+    client_max_body_size 2m;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json text/plain image/svg+xml;
+    gzip_min_length 512;
+
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy $csp_policy always;
+
+    location /static/ {
+        alias /app/static/;
+        access_log off;
+        add_header Cache-Control "public, max-age=2592000, immutable";
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
+    location / {
+        proxy_pass http://app:8000;
+        # Эти заголовки выставляет Nginx (server-уровень). Приложение их тоже шлёт —
+        # без hide получались дубли, а повтор X-Frame-Options браузеры могут счесть невалидным.
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Referrer-Policy;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        # ПЕРЕЗАПИСЫВАЕМ, а не дописываем ($proxy_add_x_forwarded_for): Nginx — внешний край.
+        # Иначе клиент присылает свой X-Forwarded-For, и при FORWARDED_ALLOW_IPS=* приложение
+        # берёт подделанный адрес — rate limit (по IP) обходится ротацией заголовка.
+        # Если перед Nginx стоит CDN/балансировщик — настройте ngx_http_realip_module (set_real_ip_from)
+        # и оставьте здесь $remote_addr: после realip это уже настоящий адрес клиента.
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Request-ID $request_id;
+    }
+}

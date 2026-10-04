@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, trust_badge, section_head, window_drawing, cta_band %}
+
+{% block scripts %}
+<script src="{{ asset('js/calculator.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+
+{# ── Hero ── #}
+<section class="max-w-container mx-auto px-4 pt-10 pb-14 md:pt-16 md:pb-20">
+  <div class="grid md:grid-cols-2 gap-10 items-center">
+    <div class="motion-safe:animate-fade-in-up">
+      <p class="eyebrow mb-5">{{ settings.company_region }}</p>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl leading-tight font-extrabold text-graphite tracking-tight mb-5">
+        Пластиковые окна с установкой в {{ settings.company_region }}
+      </h1>
+      {# TODO: подтвердить точные формулировки УТП перед публикацией #}
+      <p class="text-lg text-graphite-soft mb-7 max-w-lg">
+        Бесплатный замер, цена в договоре без доплат по факту и гарантия на монтаж.
+      </p>
+
+      <div class="flex flex-wrap gap-3 mb-8">
+        <a href="#calculator" class="btn-primary">Рассчитать стоимость{{ icon("arrow-right", "w-4 h-4") }}</a>
+        <button type="button" class="btn-secondary" data-open-dialog="measurer-modal">Вызвать замерщика</button>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        {{ trust_badge("Замер — бесплатно") }}
+        {{ trust_badge("Договор и чек") }}
+        {{ trust_badge("Гарантия на монтаж") }}
+      </div>
+    </div>
+
+    <div class="motion-safe:animate-fade-in-up [animation-delay:120ms]">
+      {# TODO: заменить чертёж на реальное фото объекта/продукта (static/images/hero/) #}
+      <div class="card overflow-hidden">
+        <div class="aspect-[4/3] bg-surface-low flex items-center justify-center text-graphite/70">
+          {{ window_drawing("w-full max-w-sm p-6") }}
+        </div>
+        <div class="flex items-start gap-3 p-5 border-t border-steelline">
+          <span class="icon-tile">{{ icon("ruler", "w-5 h-5") }}</span>
+          <div>
+            <p class="font-semibold text-graphite">Индивидуальная конфигурация</p>
+            <p class="text-sm text-graphite-soft">Размеры, профиль и комплектация — под ваш проём</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ── Каталог: категории берутся из БД ── #}
+{% if root_categories %}
+<section id="catalog" class="bg-paper border-y border-steelline">
+  <div class="max-w-container mx-auto px-4 py-16 md:py-24">
+    {{ section_head("Что вас интересует?", eyebrow="Каталог", lead="Выберите раздел — внутри варианты конструкций и ссылка на расчёт стоимости.") }}
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {% for item in root_categories %}
+      <a href="{{ item.url }}" class="card group flex flex-col overflow-hidden transition-shadow hover:shadow-md reveal reveal-d{{ loop.index0 % 3 }}">
+        {% if item.category.image_path and static_exists(item.category.image_path) %}
+        <img src="{{ item.category.image_path }}" alt="{{ item.category.name }}" class="w-full aspect-[4/3] object-cover bg-steelline" loading="lazy" width="400" height="300">
+        {% else %}
+        <div class="aspect-[4/3] bg-surface-low flex items-center justify-center text-graphite/60">{{ window_drawing("w-2/3") }}</div>
+        {% endif %}
+        <div class="flex flex-col flex-1 p-5">
+          <h3 class="font-bold text-graphite text-lg mb-1">{{ item.category.name }}</h3>
+          {% if item.category.short_description %}<p class="text-sm text-graphite-soft mb-4">{{ item.category.short_description }}</p>{% endif %}
+          <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-amber group-hover:gap-2.5 transition-all">Смотреть варианты{{ icon("arrow-right", "w-4 h-4") }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% include "partials/calculator.html" %}
+
+{# ── Консультация ── #}
+<section class="bg-surface-low border-y border-steelline">
+  <div class="max-w-container mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
+    <div class="reveal">
+      <p class="eyebrow mb-4">Подбор решения</p>
+      <h2 class="section-title mb-4">Не знаете, какой вариант выбрать?</h2>
+      <p class="text-graphite-soft mb-6 max-w-lg">Оставьте заявку — специалист поможет подобрать конструкцию под ваши задачи и согласует удобное время замера.</p>
+      <ul class="grid gap-3 text-sm font-medium text-graphite">
+        <li class="flex items-center gap-3"><span class="icon-tile">{{ icon("layers", "w-5 h-5") }}</span>Подскажем тип конструкции и профиль</li>
+        <li class="flex items-center gap-3"><span class="icon-tile">{{ icon("ruler", "w-5 h-5") }}</span>Уточним размеры проёма на замере</li>
+        <li class="flex items-center gap-3"><span class="icon-tile">{{ icon("check", "w-5 h-5") }}</span>Замер бесплатный</li>
+      </ul>
+    </div>
+    <div class="max-w-md w-full lg:ml-auto reveal">
+      {% include "partials/forms.html" %}
+    </div>
+  </div>
+</section>
+
+{# ── Сравнение профилей ── #}
+<section id="comparison" class="max-w-container mx-auto px-4 py-16 md:py-24">
+  {{ section_head("Какое решение выбрать", eyebrow="Сравнение") }}
+  <div class="card overflow-x-auto reveal" tabindex="0" role="region" aria-label="Сравнение вариантов, таблица прокручивается по горизонтали">
+    <table class="w-full text-sm border-collapse min-w-[560px]">
+      <caption class="sr-only">Сравнение вариантов профиля окна</caption>
+      <thead>
+        <tr class="text-left border-b border-steelline bg-surface-low">
+          <th scope="col" class="py-3 px-4 font-semibold text-graphite">Параметр</th>
+          <th scope="col" class="py-3 px-4 font-semibold text-graphite">Стандарт</th>
+          <th scope="col" class="py-3 px-4 font-semibold text-graphite">Теплее</th>
+          <th scope="col" class="py-3 px-4 font-semibold text-graphite">Максимальная тишина</th>
+        </tr>
+      </thead>
+      <tbody class="text-graphite-soft">
+        <tr class="border-b border-steelline">
+          <th scope="row" class="py-3 px-4 text-left font-medium text-graphite">Профиль</th>
+          <td class="py-3 px-4">58–70 мм</td>
+          <td class="py-3 px-4">70–82 мм</td>
+          <td class="py-3 px-4">82 мм+</td>
+        </tr>
+        <tr class="border-b border-steelline">
+          <th scope="row" class="py-3 px-4 text-left font-medium text-graphite">Стеклопакет</th>
+          <td class="py-3 px-4">1-камерный</td>
+          <td class="py-3 px-4">2-камерный</td>
+          <td class="py-3 px-4">2-камерный, шумозащитный</td>
+        </tr>
+        <tr>
+          <th scope="row" class="py-3 px-4 text-left font-medium text-graphite">Рекомендуется для</th>
+          <td class="py-3 px-4">Стандартных условий</td>
+          <td class="py-3 px-4">Холодных фасадов</td>
+          <td class="py-3 px-4">Окон на оживлённую улицу</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="text-xs text-graphite-soft mt-4">Точные технические характеристики уточняйте у менеджера — набор опций может отличаться в зависимости от производителя профиля.</p>
+</section>
+
+{# ── Преимущества ── #}
+<section id="advantages" class="bg-paper border-y border-steelline">
+  <div class="max-w-container mx-auto px-4 py-16 md:py-24">
+    {{ section_head("Почему выбирают нас", eyebrow="Подход") }}
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {# TODO: подтвердить формулировки про штат монтажников и срок гарантии #}
+      {% for ic, title, text in [
+        ("tag", "Честная цена", "Цена в договоре совпадает с ценой на замере."),
+        ("users", "Свои монтажники", "Работаем без субподряда."),
+        ("shield", "Гарантия на монтаж", "Условия фиксируются в договоре."),
+        ("sparkle", "Уборка после монтажа", "Вывозим мусор и старые конструкции."),
+      ] %}
+      <div class="card p-6 reveal reveal-d{{ loop.index0 % 5 }}">
+        <span class="icon-tile mb-4">{{ icon(ic, "w-6 h-6") }}</span>
+        <h3 class="font-bold text-graphite mb-2">{{ title }}</h3>
+        <p class="text-sm text-graphite-soft">{{ text }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ── Как проходит заказ ── #}
+<section id="process" class="max-w-container mx-auto px-4 py-16 md:py-24">
+  {{ section_head("Как проходит заказ", eyebrow="Этапы работы") }}
+  <ol class="grid md:grid-cols-5 gap-4">
+    {# TODO: реальный срок изготовления — добавить в шаг 4 #}
+    {% for title, text in [
+      ("Заявка", "Оставляете телефон на сайте"),
+      ("Звонок менеджера", "Уточняем детали и назначаем замер"),
+      ("Бесплатный замер", "Фиксируем точную цену в договоре"),
+      ("Изготовление", "Производим по вашим размерам"),
+      ("Монтаж", "Устанавливаем и убираем за собой"),
+    ] %}
+    <li class="card p-5 reveal reveal-d{{ loop.index0 % 5 }}">
+      <div class="w-10 h-10 rounded-full bg-amber text-white font-bold flex items-center justify-center mb-4" aria-hidden="true">{{ loop.index }}</div>
+      <h3 class="font-semibold text-graphite mb-1"><span class="sr-only">Шаг {{ loop.index }}: </span>{{ title }}</h3>
+      <p class="text-sm text-graphite-soft">{{ text }}</p>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+{# ── Портфолио: выводится только при наличии реальных фото в static/images/portfolio/ ── #}
+{% set projects = portfolio_items() %}
+{% if projects %}
+<section id="portfolio" class="bg-paper border-y border-steelline">
+  <div class="max-w-container mx-auto px-4 py-16 md:py-24">
+    {{ section_head("Портфолио выполненных работ", eyebrow="Наши работы") }}
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {% for p in projects %}
+      <button type="button" class="card overflow-hidden text-left flex flex-col transition-shadow hover:shadow-md reveal" data-open-dialog="lightbox-{{ p.slug }}" aria-haspopup="dialog">
+        <img src="{{ p.thumb }}" alt="{{ p.title }}" class="w-full aspect-[4/3] object-cover bg-steelline" loading="lazy" width="400" height="300">
+        <span class="p-4 font-semibold text-graphite">{{ p.title }}</span>
+      </button>
+      {% endfor %}
+    </div>
+
+    {% for p in projects %}
+    <dialog id="lightbox-{{ p.slug }}" class="dialog-center max-w-2xl" aria-label="{{ p.title }}">
+      <div class="relative">
+        <button type="button" class="tap-target absolute top-2 right-2 bg-paper/90 rounded-full text-graphite" data-close-dialog aria-label="Закрыть">{{ icon("close", "w-5 h-5") }}</button>
+        <img src="{{ p.large }}" alt="{{ p.title }}" class="w-full aspect-[4/3] object-cover bg-steelline" width="800" height="600">
+        <p class="p-4 font-semibold text-graphite">{{ p.title }}</p>
+      </div>
+    </dialog>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{# TODO: блок «Отзывы» добавить только когда будут реальные отзывы клиентов (фейковые не публикуем). #}
+
+{% include "partials/faq.html" %}
+
+{% call cta_band("Получите точный расчёт после бесплатного замера") %}
+  <a href="{{ settings.company_phone|tel }}" class="btn-light">{{ icon("phone", "w-4 h-4") }}{{ settings.company_phone }}</a>
+  <button type="button" class="btn-primary bg-amber-light text-graphite hover:bg-amber-tint" data-open-dialog="callback-modal">Заказать звонок</button>
+{% endcall %}
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% from "partials/macros.html" import icon %}
+{# Якоря абсолютные (/#…): ссылки одинаково работают и на главной, и на страницах каталога, privacy и 404. #}
+{% set nav_items = [
+  ("Каталог", "/#catalog"),
+  ("Калькулятор", "/#calculator"),
+  ("Как проходит заказ", "/#process"),
+] %}
+{% set nav_tail = [("Вопросы", "/#faq"), ("Контакты", "#contacts")] %}
+{% set has_portfolio = portfolio_items()|length > 0 %}
+
+<header class="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-steelline transition-shadow" data-site-header>
+  <div class="max-w-container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+    <a href="/" class="flex items-center gap-2.5 shrink-0 min-h-[44px]" aria-label="{{ settings.company_name }} — на главную">
+      <span class="logo-mark">{{ icon("window", "w-5 h-5") }}</span>
+      <span class="text-lg font-extrabold text-graphite leading-tight">{{ settings.company_name }}</span>
+    </a>
+
+    <nav class="hidden lg:flex items-center gap-1" aria-label="Основная навигация">
+      {% for label, href in nav_items %}<a href="{{ href }}" class="nav-link">{{ label }}</a>{% endfor %}
+      {% if has_portfolio %}<a href="/#portfolio" class="nav-link">Портфолио</a>{% endif %}
+      {% for label, href in nav_tail %}<a href="{{ href }}" class="nav-link">{{ label }}</a>{% endfor %}
+    </nav>
+
+    <div class="hidden md:flex items-center gap-3 shrink-0">
+      <a href="{{ settings.company_phone|tel }}" class="hidden xl:inline-flex items-center gap-2 font-semibold text-graphite min-h-[44px]">{{ icon("phone", "w-4 h-4 text-amber") }}{{ settings.company_phone }}</a>
+      <button type="button" class="btn-primary text-sm px-4 py-2.5" data-open-dialog="measurer-modal">Вызвать замерщика</button>
+    </div>
+
+    <button type="button" class="lg:hidden tap-target text-graphite -mr-2" data-open-dialog="mobile-menu" aria-label="Открыть меню" aria-haspopup="dialog">
+      {{ icon("menu", "w-6 h-6") }}
+    </button>
+  </div>
+</header>
+
+<dialog id="mobile-menu" class="dialog-fullscreen lg:hidden" aria-label="Меню сайта">
+  <div class="flex items-center justify-between px-4 h-16 border-b border-steelline">
+    <span class="flex items-center gap-2.5 text-lg font-extrabold text-graphite"><span class="logo-mark">{{ icon("window", "w-5 h-5") }}</span>{{ settings.company_name }}</span>
+    <button type="button" class="tap-target text-graphite -mr-2" data-close-dialog aria-label="Закрыть меню">{{ icon("close", "w-6 h-6") }}</button>
+  </div>
+  <nav class="flex flex-col p-4 gap-1 text-base font-medium text-graphite overflow-y-auto" aria-label="Мобильная навигация">
+    {% for label, href in nav_items %}<a href="{{ href }}" class="tap-target justify-start py-3 rounded-lg hover:bg-graphite/5" data-close-dialog>{{ label }}</a>{% endfor %}
+    {% if has_portfolio %}<a href="/#portfolio" class="tap-target justify-start py-3 rounded-lg hover:bg-graphite/5" data-close-dialog>Портфолио</a>{% endif %}
+    {% for label, href in nav_tail %}<a href="{{ href }}" class="tap-target justify-start py-3 rounded-lg hover:bg-graphite/5" data-close-dialog>{{ label }}</a>{% endfor %}
+  </nav>
+  <div class="mt-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] border-t border-steelline flex flex-col gap-3">
+    <a href="{{ settings.company_phone|tel }}" class="btn-secondary w-full">{{ icon("phone", "w-4 h-4") }}{{ settings.company_phone }}</a>
+    <button type="button" class="btn-primary w-full" data-close-dialog data-open-dialog="measurer-modal">Вызвать замерщика</button>
+  </div>
+</dialog>

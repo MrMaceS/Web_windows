@@ -1,0 +1,40 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ category.name }} — Админка{% endblock %}
+{% block content %}
+<a href="/admin/catalog/categories" class="text-sm text-graphite-soft hover:underline">← К списку категорий</a>
+<h1 class="text-2xl font-bold text-graphite mt-2 mb-6">{{ category.name }}</h1>
+
+<form method="post" action="/admin/catalog/categories/{{ category.id }}" class="card p-5 space-y-4 max-w-2xl">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <div>
+    <label class="field-label">Название (H1)</label>
+    <input aria-label="Название (H1)" type="text" name="name" value="{{ category.name }}" required class="field">
+  </div>
+  <div>
+    <label class="field-label">Короткое описание</label>
+    <input aria-label="Короткое описание" type="text" name="short_description" value="{{ category.short_description or '' }}" class="field">
+  </div>
+  <div>
+    <label class="field-label">Описание (HTML, выводится на странице)</label>
+    <textarea aria-label="Описание (HTML, выводится на странице)" name="description_html" rows="5" class="field font-mono text-xs">{{ category.description_html or '' }}</textarea>
+  </div>
+  <div>
+    <label class="field-label">Meta title</label>
+    <input aria-label="Meta title" type="text" name="meta_title" value="{{ category.meta_title or '' }}" class="field">
+  </div>
+  <div>
+    <label class="field-label">Meta description</label>
+    <input aria-label="Meta description" type="text" name="meta_description" value="{{ category.meta_description or '' }}" class="field">
+  </div>
+  <label class="flex items-center gap-2 text-sm">
+    <input type="checkbox" name="is_active" {% if category.is_active %}checked{% endif %}> Категория активна (видна на сайте)
+  </label>
+  <button type="submit" class="btn-primary">Сохранить</button>
+</form>
+
+{% if not category.children %}
+<div class="mt-6">
+  <a href="/admin/catalog/products?category_id={{ category.id }}" class="text-amber-dark hover:underline text-sm">Товары этой категории →</a>
+</div>
+{% endif %}
+{% endblock %}

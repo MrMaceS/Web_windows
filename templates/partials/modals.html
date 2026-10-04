@@ -1,0 +1,26 @@
+{% from "partials/macros.html" import icon, lead_form, lead_success %}
+{# Модалки подключаются один раз — из base.html — и доступны на всех публичных страницах.
+   На mobile это bottom-sheet, на desktop — диалог по центру. #}
+
+{% macro modal(dom_id, title, lead, prefix, source, submit_label) %}
+<dialog id="{{ dom_id }}" class="dialog-center" aria-labelledby="{{ dom_id }}-title">
+  <div class="p-6 pt-5 relative">
+    <div class="flex items-start justify-between gap-4 mb-5">
+      <div>
+        <p class="eyebrow mb-3">Бесплатно</p>
+        <h2 id="{{ dom_id }}-title" class="text-xl font-bold text-graphite">{{ title }}</h2>
+        <p class="text-graphite-soft text-sm mt-1">{{ lead }}</p>
+      </div>
+      <button type="button" class="tap-target -mr-2 -mt-1 text-graphite-soft hover:text-graphite" data-close-dialog aria-label="Закрыть">{{ icon("close", "w-5 h-5") }}</button>
+    </div>
+
+    {{ lead_form(prefix, source, submit_label, settings) }}
+    <p class="mt-4 flex items-center justify-center gap-1.5 text-xs text-graphite-soft">{{ icon("lock", "w-3.5 h-3.5") }}Данные используются только для связи по заявке</p>
+
+    {{ lead_success(prefix) }}
+  </div>
+</dialog>
+{% endmacro %}
+
+{{ modal("measurer-modal", "Вызвать замерщика", "Приедем в удобное время и зафиксируем точную цену", "measurer", "hero_form", "Вызвать замерщика") }}
+{{ modal("callback-modal", "Заказать обратный звонок", "Перезвоним в рабочее время", "callback", "callback_widget", "Заказать звонок") }}

@@ -1,0 +1,183 @@
+{# ───────────────────────────────────────────────────────────────
+   Иконки: inline-SVG вместо шрифта Material Symbols из выгрузки Stitch.
+   Контур 24×24, stroke=currentColor; все иконки декоративные (aria-hidden) —
+   смысл всегда дублируется текстом или aria-label у кнопки.
+   ─────────────────────────────────────────────────────────────── #}
+{% set ICONS = {
+  "window": '<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M12 4v16M4 12h16"/>',
+  "balcony": '<rect x="5" y="3" width="14" height="13" rx="1"/><path d="M12 3v13M5 20h14M8 16v4M12 16v4M16 16v4"/>',
+  "loggia": '<rect x="3" y="6" width="18" height="12" rx="1"/><path d="M9 6v12M15 6v12"/>',
+  "panorama": '<rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 12h18M9 4v16M15 4v16"/>',
+  "door": '<rect x="6" y="3" width="12" height="18" rx="1"/><path d="M15 12h.01"/>',
+  "phone": '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a1 1 0 01-1 1A16 16 0 014 5a1 1 0 011-1z"/>',
+  "calculator": '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/>',
+  "ruler": '<path d="M3 17L17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>',
+  "check": '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  "shield": '<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+  "arrow-right": '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  "arrow-left": '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  "chevron-down": '<path d="M6 9l6 6 6-6"/>',
+  "close": '<path d="M6 6l12 12M18 6L6 18"/>',
+  "menu": '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  "map-pin": '<path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  "clock": '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  "send": '<path d="M21 3L10 14M21 3l-7 18-4-7-7-4z"/>',
+  "home": '<path d="M4 11l8-7 8 7M6 10v10h12V10"/>',
+  "grid": '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
+  "layers": '<path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/>',
+  "tag": '<path d="M3 12V4h8l10 10-8 8z"/><path d="M7.5 7.5h.01"/>',
+  "users": '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 015 5"/>',
+  "sparkle": '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
+  "alert": '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>',
+  "refresh": '<path d="M20 11a8 8 0 10-2.3 6.3"/><path d="M20 5v6h-6"/>',
+  "lock": '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
+  "message": '<path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v10a1 1 0 01-1 1H9l-5 4z"/>',
+  "mail": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+} %}
+
+{% macro icon(name, size="w-5 h-5", extra="") -%}
+<svg class="{{ size }} {{ extra }} shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">{{ ICONS.get(name, "")|safe }}</svg>
+{%- endmacro %}
+
+{# Чертёж окна — декоративная замена фото, пока нет реальных изображений. #}
+{% macro window_drawing(extra="") -%}
+<svg class="{{ extra }}" viewBox="0 0 320 240" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+  <rect x="60" y="30" width="200" height="170" rx="4" stroke-width="3"/>
+  <rect x="72" y="42" width="76" height="146" rx="2"/>
+  <rect x="172" y="42" width="76" height="146" rx="2"/>
+  <path d="M148 65l-76 -23M148 165l-76 23" stroke-dasharray="5 5" opacity=".55"/>
+  <path d="M172 115h12M236 110v10" stroke-width="3" stroke-linecap="round"/>
+  <path d="M60 218h200M60 212v12M260 212v12M40 30v170M34 30h12M34 200h12" stroke-width="1.25" opacity=".5"/>
+</svg>
+{%- endmacro %}
+
+{# ─────────── Кнопки ─────────── #}
+{% macro btn_primary(text, type="button", extra_classes="", attrs="") -%}
+<button type="{{ type }}" class="btn-primary {{ extra_classes }}" {{ attrs|safe }}>{{ text }}</button>
+{%- endmacro %}
+
+{% macro btn_secondary(text, type="button", extra_classes="", attrs="") -%}
+<button type="{{ type }}" class="btn-secondary {{ extra_classes }}" {{ attrs|safe }}>{{ text }}</button>
+{%- endmacro %}
+
+{% macro link_button(text, href, extra_classes="btn-primary") -%}
+<a href="{{ href }}" class="{{ extra_classes }}">{{ text }}</a>
+{%- endmacro %}
+
+{# ─────────── Поля форм ─────────── #}
+{% macro text_field(prefix, field_name, label, type="text", required=False, placeholder="", autocomplete="") -%}
+{% set fid = prefix ~ "-" ~ field_name %}
+<div>
+  <label for="{{ fid }}" class="field-label">{{ label }}{% if required %} *{% endif %}</label>
+  <input
+    id="{{ fid }}" name="{{ field_name }}" type="{{ type }}"
+    placeholder="{{ placeholder }}"
+    {% if required %}required aria-required="true"{% endif %}
+    {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+    class="field"
+    aria-describedby="{{ fid }}-error"
+  >
+  <p id="{{ fid }}-error" class="field-error-text hidden" role="alert"></p>
+</div>
+{%- endmacro %}
+
+{% macro phone_field(prefix) -%}
+{% set fid = prefix ~ "-phone" %}
+<div>
+  <label for="{{ fid }}" class="field-label">Телефон *</label>
+  <input
+    id="{{ fid }}" name="phone" type="tel" inputmode="tel"
+    placeholder="+7 (___) ___-__-__"
+    required aria-required="true"
+    autocomplete="tel"
+    class="field js-phone-mask"
+    aria-describedby="{{ fid }}-error"
+  >
+  <p id="{{ fid }}-error" class="field-error-text hidden" role="alert"></p>
+</div>
+{%- endmacro %}
+
+{% macro consent_checkbox(settings, prefix) -%}
+{% set fid = prefix ~ "-consent" %}
+<div>
+  <div class="flex items-start gap-3">
+    <input
+      id="{{ fid }}" name="consent" type="checkbox" required aria-required="true"
+      class="w-5 h-5 mt-0.5 shrink-0 accent-amber cursor-pointer"
+      aria-describedby="{{ fid }}-error"
+    >
+    <label for="{{ fid }}" class="text-sm text-graphite-soft leading-snug cursor-pointer">
+      {{ settings.consent_text }} —
+      <a href="{{ settings.privacy_policy_url }}" target="_blank" rel="noopener" class="underline hover:text-graphite">читать политику</a>
+    </label>
+  </div>
+  <p id="{{ fid }}-error" class="field-error-text hidden" role="alert"></p>
+</div>
+{%- endmacro %}
+
+{% macro honeypot_field(prefix) -%}
+{% set fid = prefix ~ "-website" %}
+<div class="hp-field" aria-hidden="true">
+  <label for="{{ fid }}">Оставьте это поле пустым</label>
+  <input id="{{ fid }}" name="website" type="text" tabindex="-1" autocomplete="off">
+</div>
+{%- endmacro %}
+
+{# Единая форма заявки. lead=True → обрабатывается main.js (POST /api/lead);
+   lead=False → форму ведёт calculator.js (POST /api/calculator-lead). #}
+{% macro lead_form(prefix, source, submit_label, settings, lead=True, extra_classes="space-y-4") -%}
+<form id="{{ prefix }}-form" class="{{ extra_classes }}" {% if lead %}data-lead-form{% endif %} data-source="{{ source }}" novalidate>
+  {{ text_field(prefix, "name", "Имя", required=False, placeholder="Как к вам обращаться", autocomplete="given-name") }}
+  {{ phone_field(prefix) }}
+  {{ consent_checkbox(settings, prefix) }}
+  {{ honeypot_field(prefix) }}
+  <input type="hidden" name="utm_source">
+  <input type="hidden" name="utm_medium">
+  <input type="hidden" name="utm_campaign">
+  <button type="submit" class="btn-primary w-full" data-label="{{ submit_label }}">{{ icon("send", "w-4 h-4") }}<span>{{ submit_label }}</span></button>
+</form>
+{%- endmacro %}
+
+{% macro lead_success(prefix, badge="Заявка принята", text="Спасибо! Мы скоро позвоним.") -%}
+<div id="{{ prefix }}-form-success" class="hidden text-center py-6" role="status" aria-live="polite" tabindex="-1">
+  <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber text-white motion-safe:animate-check-pop">{{ icon("check", "w-7 h-7") }}</div>
+  <div class="badge-confirm mx-auto w-fit mb-3">{{ badge }}</div>
+  <p class="font-semibold text-lg text-graphite success-text">{{ text }}</p>
+</div>
+{%- endmacro %}
+
+{# ─────────── Прочее ─────────── #}
+{% macro trust_badge(text) -%}
+<span class="badge-confirm">{{ icon("check", "w-4 h-4") }} {{ text }}</span>
+{%- endmacro %}
+
+{% macro section_head(title, eyebrow="", lead="", center=True) -%}
+<div class="{% if center %}text-center mx-auto{% endif %} mb-10 md:mb-12 max-w-3xl reveal">
+  {% if eyebrow %}<p class="eyebrow mb-4">{{ eyebrow }}</p>{% endif %}
+  <h2 class="section-title">{{ title }}</h2>
+  {% if lead %}<p class="section-lead {% if center %}mx-auto{% endif %}">{{ lead }}</p>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro faq_item(question, answer) -%}
+<details class="faq-item card group">
+  <summary class="flex items-center justify-between gap-4 px-5 py-4 min-h-[56px] font-semibold text-graphite">
+    <span>{{ question }}</span>
+    {{ icon("chevron-down", "w-5 h-5", "text-graphite-soft transition-transform group-open:rotate-180") }}
+  </summary>
+  <p class="faq-body px-5 pb-5 text-graphite-soft text-sm leading-relaxed">{{ answer }}</p>
+</details>
+{%- endmacro %}
+
+{# Тёмный CTA-блок. Кнопки передаются через {% call cta_band(...) %}…{% endcall %} #}
+{% macro cta_band(title, lead="") -%}
+<section class="px-4 pb-6">
+  <div class="on-dark max-w-container mx-auto rounded-2xl bg-graphite text-white px-6 py-12 md:px-12 md:py-14 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 reveal">
+    <div class="max-w-xl">
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">{{ title }}</h2>
+      {% if lead %}<p class="mt-3 text-cream/80">{{ lead }}</p>{% endif %}
+    </div>
+    <div class="flex flex-col sm:flex-row gap-3 lg:shrink-0">{{ caller() }}</div>
+  </div>
+</section>
+{%- endmacro %}

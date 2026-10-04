@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "partials/breadcrumbs.html" import render_breadcrumbs %}
+{% from "partials/macros.html" import icon %}
+
+{% block title %}Политика конфиденциальности — {{ settings.company_name }}{% endblock %}
+{% block description %}Политика конфиденциальности и обработки персональных данных {{ settings.company_name }}.{% endblock %}
+
+{% block sticky_cta %}
+<aside class="sticky-cta" data-sticky-cta aria-label="Быстрые действия">
+  <a href="{{ settings.company_phone|tel }}" class="btn-primary w-full text-sm">{{ icon("phone", "w-4 h-4") }}Позвонить: {{ settings.company_phone }}</a>
+</aside>
+<div class="h-20 md:hidden" aria-hidden="true"></div>
+{% endblock %}
+
+{% block content %}
+{{ render_breadcrumbs([("Главная", "/"), ("Политика конфиденциальности", None)], settings) }}
+
+<div class="max-w-3xl mx-auto px-4 py-10 md:py-14">
+  <p class="eyebrow mb-4">Документы</p>
+  <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-8 text-graphite break-words [hyphens:auto]">Политика конфиденциальности</h1>
+
+  <div id="consent" class="card p-6 md:p-8 text-graphite-soft space-y-4 leading-relaxed">
+    {# TODO: заменить на юридически выверенный текст политики обработки
+       персональных данных, согласованный с юристом компании. Ниже —
+       структурная заготовка разделов, без выдуманных формулировок. #}
+    <h2 class="text-lg font-bold text-graphite">1. Какие данные мы собираем</h2>
+    <p>TODO: перечень собираемых данных (имя, телефон, параметры заявки из калькулятора).</p>
+
+    <h2 class="text-lg font-bold text-graphite">2. Цели обработки</h2>
+    <p>TODO: связь с клиентом по заявке, подготовка коммерческого предложения, замер.</p>
+
+    <h2 class="text-lg font-bold text-graphite">3. Оператор персональных данных</h2>
+    <p>{{ settings.legal_entity_name or "TODO: наименование юридического лица, ИНН/ОГРН" }}</p>
+
+    <h2 class="text-lg font-bold text-graphite">4. Срок хранения и права субъекта данных</h2>
+    <p>TODO: срок хранения, порядок отзыва согласия и удаления данных по запросу.</p>
+
+    <h2 class="text-lg font-bold text-graphite">5. Контакты по вопросам обработки данных</h2>
+    <p><a href="{{ settings.company_phone|tel }}" class="inline-flex items-center min-h-[44px] underline hover:text-graphite">{{ settings.company_phone }}</a></p>
+  </div>
+</div>
+{% endblock %}

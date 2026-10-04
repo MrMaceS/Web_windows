@@ -1,0 +1,242 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Manrope (SIL OFL 1.1, @fontsource-variable/manrope 5.3.0) — self-host: без запросов к Google Fonts.
+   Подключены только cyrillic и latin; wght 200–800 одним variable-файлом. */
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("/static/fonts/manrope-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("/static/fonts/manrope-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@layer base {
+  html {
+    scroll-padding-top: 5.5rem; /* sticky header не перекрывает якорные секции */
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  html.is-scroll-locked {
+    overflow: hidden;
+  }
+  body {
+    @apply bg-cream text-graphite antialiased;
+  }
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid theme("colors.amber.DEFAULT");
+    outline-offset: 2px;
+  }
+  .on-dark a:focus-visible,
+  .on-dark button:focus-visible {
+    outline-color: theme("colors.amber.light");
+  }
+  /* prefers-reduced-motion: глушим все переходы и анимации разом */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-paper border border-steelline rounded-card;
+  }
+
+  .tap-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-semibold px-5 py-3 min-h-[44px] transition-colors duration-150 motion-safe:active:scale-[0.98];
+  }
+  .btn-primary {
+    @apply btn bg-amber text-white hover:bg-amber-dark active:bg-amber-dark disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply btn bg-transparent border border-graphite/25 text-graphite hover:bg-graphite/5 active:bg-graphite/10 disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+  .btn-light {
+    @apply btn bg-white text-graphite hover:bg-cream active:bg-steelline;
+  }
+
+  /* ——— Поля форм ——— */
+  .field {
+    @apply w-full border border-steelline rounded-xl px-4 py-3 min-h-[44px] bg-paper text-graphite placeholder:text-graphite-soft/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber focus-visible:border-amber transition;
+  }
+  .field-error {
+    @apply border-red-600 focus-visible:ring-red-600;
+  }
+  .field-label {
+    @apply block text-sm font-medium text-graphite-soft mb-1.5;
+  }
+  .field-error-text {
+    @apply text-sm text-red-700 mt-1;
+  }
+
+  /* ——— Мелкие элементы ——— */
+  .badge-confirm {
+    @apply inline-flex items-center gap-1.5 bg-confirm-bg text-confirm text-sm font-medium px-3 py-1 rounded-full;
+  }
+  .eyebrow {
+    @apply inline-flex items-center gap-2 bg-surface-low text-graphite-soft text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full;
+  }
+  .eyebrow::before {
+    content: "";
+    @apply w-1.5 h-1.5 rounded-full bg-amber;
+  }
+  .chip {
+    @apply inline-flex items-center bg-surface-low text-graphite-soft text-xs font-medium px-2.5 py-1 rounded-lg;
+  }
+  .icon-tile {
+    @apply inline-flex items-center justify-center w-11 h-11 shrink-0 rounded-xl bg-amber-tint/60 text-amber;
+  }
+  .logo-mark {
+    @apply inline-flex items-center justify-center w-9 h-9 shrink-0 rounded-lg bg-graphite text-white;
+  }
+  .section-title {
+    @apply text-3xl md:text-4xl font-extrabold text-graphite tracking-tight;
+  }
+  .section-lead {
+    @apply text-graphite-soft mt-3 max-w-2xl;
+  }
+  .nav-link {
+    @apply px-3 py-2 rounded-lg text-sm font-medium text-graphite-soft hover:text-graphite hover:bg-graphite/5 transition-colors;
+  }
+
+  /* ——— Диалоги: центр на desktop, bottom-sheet на mobile ——— */
+  dialog {
+    @apply p-0 border-none rounded-card m-auto text-graphite;
+  }
+  dialog::backdrop {
+    @apply bg-graphite/50 backdrop-blur-sm;
+  }
+  dialog[open] {
+    @apply motion-safe:animate-fade-in-up-fast;
+  }
+  .dialog-center {
+    @apply w-[92vw] max-w-md max-h-[90dvh] overflow-y-auto overscroll-contain bg-paper;
+  }
+  /* display:flex задаём только у открытого диалога: иначе он перебивает UA-правило
+     dialog:not([open]){display:none} и закрытое меню рисуется поверх страницы. */
+  .dialog-fullscreen {
+    @apply w-screen h-[100dvh] max-w-none max-h-none flex-col bg-cream rounded-none;
+  }
+  .dialog-fullscreen[open] {
+    @apply flex;
+  }
+  @media (max-width: 639px) {
+    .dialog-center {
+      @apply w-full max-w-none mb-0 mt-auto rounded-b-none rounded-t-2xl;
+    }
+    dialog.dialog-center[open] {
+      @apply motion-safe:animate-sheet-up;
+    }
+  }
+
+  .hp-field {
+    position: absolute !important;
+    left: -9999px !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+  }
+
+  /* ——— Калькулятор ——— */
+  .calc-option {
+    @apply card flex flex-col items-start gap-2 w-full min-h-[44px] p-4 text-left border-2 transition-colors hover:border-amber/60 motion-safe:active:scale-[0.99];
+  }
+  .calc-option[aria-checked="true"] {
+    @apply border-amber bg-amber/5;
+  }
+  .calc-step {
+    @apply motion-safe:animate-fade-in-up-fast;
+  }
+  .calc-tab {
+    @apply flex items-center gap-2 min-h-[44px] px-3 rounded-lg text-sm font-medium text-graphite-soft;
+  }
+  .calc-tab[aria-current="step"] {
+    @apply bg-paper text-graphite shadow-sm;
+  }
+  .calc-tab[data-done="true"] .calc-tab-num {
+    @apply bg-amber text-white;
+  }
+  .calc-tab-num {
+    @apply inline-flex items-center justify-center w-6 h-6 rounded-full bg-steelline text-xs font-bold text-graphite;
+  }
+  .calc-tab[aria-current="step"] .calc-tab-num {
+    @apply bg-amber text-white;
+  }
+  .skeleton {
+    @apply rounded-lg bg-steelline/70 motion-safe:animate-pulse;
+  }
+
+  /* ——— FAQ (нативный <details>, работает с клавиатуры) ——— */
+  .faq-item > summary {
+    @apply list-none cursor-pointer;
+  }
+  .faq-item > summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-item[open] > .faq-body {
+    @apply motion-safe:animate-fade-in-up-fast;
+  }
+
+  /* ——— Scroll reveal: скрываем только когда JS жив и анимации разрешены ——— */
+  @media (prefers-reduced-motion: no-preference) {
+    .js .reveal {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+    .js .reveal.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ——— Sticky-CTA на mobile ——— */
+  .sticky-cta {
+    @apply fixed bottom-0 inset-x-0 z-30 md:hidden bg-paper/95 backdrop-blur border-t border-steelline px-3 pt-3 flex gap-2 transition-transform duration-200;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+  .sticky-cta[data-hidden="true"] {
+    @apply translate-y-full;
+  }
+  .header-shadow {
+    @apply shadow-[0_2px_12px_rgba(34,40,47,0.08)];
+  }
+}
+
+/* Задержки каскадного появления. Вне @layer — класс собирается из шаблона динамически. */
+.reveal-d0 { --reveal-delay: 0ms; }
+.reveal-d1 { --reveal-delay: 70ms; }
+.reveal-d2 { --reveal-delay: 140ms; }
+.reveal-d3 { --reveal-delay: 210ms; }
+.reveal-d4 { --reveal-delay: 280ms; }

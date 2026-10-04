@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% from "partials/breadcrumbs.html" import render_breadcrumbs %}
+{% from "partials/macros.html" import icon, window_drawing, faq_item, section_head, cta_band %}
+
+{% block title %}{{ category.meta_title or (category.name ~ " — " ~ settings.company_name) }}{% endblock %}
+{% block description %}{{ category.meta_description or category.short_description or "" }}{% endblock %}
+{% block og_title %}{{ category.meta_title or category.name }}{% endblock %}
+{% block og_description %}{{ category.meta_description or category.short_description or "" }}{% endblock %}
+
+{% block content %}
+{{ render_breadcrumbs(breadcrumbs, settings) }}
+
+<section class="max-w-container mx-auto px-4 pt-8 pb-10 md:pt-12">
+  <p class="eyebrow mb-4">Каталог</p>
+  <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-graphite mb-4 break-words motion-safe:animate-fade-in-up">{{ category.name }}</h1>
+  {% if category.description_html %}
+  <div class="max-w-2xl text-graphite-soft leading-relaxed space-y-3">{{ category.description_html|safe }}</div>
+  {% elif category.short_description %}
+  <p class="max-w-2xl text-graphite-soft">{{ category.short_description }}</p>
+  {% endif %}
+</section>
+
+<section class="max-w-container mx-auto px-4 pb-14">
+  {% if product_cards %}
+  <h2 class="text-xl font-bold text-graphite mb-5">Варианты</h2>
+  <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+    {% for card in product_cards %}
+    <article class="card flex flex-col overflow-hidden reveal reveal-d{{ loop.index0 % 3 }}">
+      {% set shown = [] %}
+      {% for img in card.product.images[:2] if static_exists(img.image_path) %}{% set _ = shown.append(img) %}{% endfor %}
+      {% if shown %}
+      <div class="grid {% if shown|length == 1 %}grid-cols-1{% else %}grid-cols-2{% endif %} gap-0.5">
+        {% for img in shown %}
+        <img src="{{ img.image_path }}" alt="{{ img.alt_text }}" class="w-full aspect-square object-cover bg-steelline" loading="lazy" width="300" height="300">
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="aspect-[16/9] bg-surface-low flex items-center justify-center text-graphite/60">{{ window_drawing("h-full p-3") }}</div>
+      {% endif %}
+
+      <div class="flex flex-col flex-1 p-5">
+        <h3 class="font-bold text-graphite text-lg mb-1">{{ card.product.name }}</h3>
+        <p class="text-sm text-graphite-soft mb-3">{{ card.product.short_description }}</p>
+
+        {% if card.product.description_html %}
+        <div class="text-sm text-graphite-soft leading-relaxed mb-3">{{ card.product.description_html|safe }}</div>
+        {% endif %}
+
+        {% if card.product.options %}
+        <table class="w-full text-sm mb-5">
+          <caption class="sr-only">Характеристики: {{ card.product.name }}</caption>
+          <tbody>
+            {% for opt in card.product.options %}
+            <tr class="border-b border-steelline last:border-0">
+              <th scope="row" class="py-2 pr-3 font-medium text-graphite text-left w-2/5 align-top">{{ opt.group_label }}</th>
+              <td class="py-2 text-graphite-soft">{{ opt.value_label }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+
+        <div class="mt-auto pt-2">
+          <div class="mb-4">
+            {% if card.price.available %}
+            <div class="text-xs text-graphite-soft">Цена от</div>
+            <div class="text-2xl font-extrabold text-graphite tabular-nums">{{ "{:,}".format(card.price.total_price|int).replace(",", " ") }} ₽</div>
+            <p class="text-xs text-graphite-soft mt-0.5">Итог зависит от размеров и комплектации</p>
+            {% else %}
+            <div class="text-sm font-medium text-graphite-soft">Цена по индивидуальному расчёту</div>
+            {% endif %}
+          </div>
+          {% if card.calculator_link %}
+          <a href="{{ card.calculator_link }}" class="btn-primary w-full">{{ icon("calculator", "w-4 h-4") }}Рассчитать в калькуляторе</a>
+          {% else %}
+          <button type="button" class="btn-primary w-full" data-open-dialog="measurer-modal" aria-haspopup="dialog">Вызвать замерщика</button>
+          {% endif %}
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card p-8 text-center text-graphite-soft">
+    В этом разделе пока нет доступных вариантов — уточните у менеджера по телефону.
+  </div>
+  {% endif %}
+</section>
+
+{% if similar_categories %}
+<section class="max-w-container mx-auto px-4 pb-14">
+  <h2 class="text-xl font-bold text-graphite mb-5">Похожие решения</h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for item in similar_categories %}
+    <a href="{{ item.url }}" class="card group flex items-start justify-between gap-3 p-5 hover:border-amber/60 transition-colors">
+      <span>
+        <span class="block font-semibold text-graphite">{{ item.category.name }}</span>
+        <span class="block text-sm text-graphite-soft mt-1">{{ item.category.short_description }}</span>
+      </span>
+      {{ icon("arrow-right", "w-5 h-5 mt-0.5 text-amber") }}
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if faq %}
+<section class="max-w-3xl mx-auto px-4 pb-16">
+  {{ section_head("Частые вопросы", center=False) }}
+  <div class="space-y-3">
+    {% for item in faq %}{{ faq_item(item.q, item.a) }}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% call cta_band("Получите точный расчёт после бесплатного замера") %}
+  <a href="{{ settings.company_phone|tel }}" class="btn-light">{{ icon("phone", "w-4 h-4") }}{{ settings.company_phone }}</a>
+  <button type="button" class="btn-primary bg-amber-light text-graphite hover:bg-amber-tint" data-open-dialog="measurer-modal">Вызвать замерщика</button>
+{% endcall %}
+{% endblock %}

@@ -1,0 +1,12 @@
+# Переводы строк: на Windows git (autocrlf) превращает LF в CRLF, и скрипты/конфиги ломаются на Linux-сервере
+# (bash: "bad interpreter: /usr/bin/env: 'bash\r'", Nginx и Dockerfile — тоже).
+* text=auto
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.conf text eol=lf
+*.example text eol=lf
+*.yml text eol=lf
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.webp binary

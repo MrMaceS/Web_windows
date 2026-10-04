@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "partials/breadcrumbs.html" import render_breadcrumbs %}
+{% from "partials/macros.html" import icon, window_drawing, faq_item, section_head, cta_band %}
+
+{% block title %}{{ category.meta_title or (category.name ~ " — " ~ settings.company_name) }}{% endblock %}
+{% block description %}{{ category.meta_description or category.short_description or "" }}{% endblock %}
+{% block og_title %}{{ category.meta_title or category.name }}{% endblock %}
+{% block og_description %}{{ category.meta_description or category.short_description or "" }}{% endblock %}
+
+{% block content %}
+{{ render_breadcrumbs(breadcrumbs, settings) }}
+
+<section class="max-w-container mx-auto px-4 pt-8 pb-10 md:pt-12">
+  <p class="eyebrow mb-4">Каталог</p>
+  <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-graphite mb-4 break-words motion-safe:animate-fade-in-up">{{ category.name }}</h1>
+  {% if category.description_html %}
+  <div class="max-w-2xl text-graphite-soft leading-relaxed space-y-3">{{ category.description_html|safe }}</div>
+  {% elif category.short_description %}
+  <p class="max-w-2xl text-graphite-soft">{{ category.short_description }}</p>
+  {% endif %}
+</section>
+
+<section class="max-w-container mx-auto px-4 pb-14">
+  {% if child_categories %}
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    {% for child in child_categories %}
+    <a href="{{ child.url }}" class="card group flex flex-col overflow-hidden transition-shadow hover:shadow-md reveal reveal-d{{ loop.index0 % 3 }}">
+      {% if child.category.image_path and static_exists(child.category.image_path) %}
+      <img src="{{ child.category.image_path }}" alt="{{ child.category.name }}" class="w-full aspect-[4/3] object-cover bg-steelline" loading="lazy" width="400" height="300">
+      {% else %}
+      <div class="aspect-[4/3] bg-surface-low flex items-center justify-center text-graphite/60">{{ window_drawing("w-2/3") }}</div>
+      {% endif %}
+      <div class="flex flex-col flex-1 p-5">
+        <h2 class="font-bold text-graphite text-lg mb-1">{{ child.category.name }}</h2>
+        {% if child.category.short_description %}<p class="text-sm text-graphite-soft mb-4">{{ child.category.short_description }}</p>{% endif %}
+        <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-amber group-hover:gap-2.5 transition-all">Смотреть варианты{{ icon("arrow-right", "w-4 h-4") }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card p-8 text-center text-graphite-soft">
+    В этом разделе пока нет подкатегорий — они появятся в ближайшее время.
+  </div>
+  {% endif %}
+</section>
+
+{% if faq %}
+<section class="max-w-3xl mx-auto px-4 pb-16">
+  {{ section_head("Частые вопросы", center=False) }}
+  <div class="space-y-3">
+    {% for item in faq %}{{ faq_item(item.q, item.a) }}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% call cta_band("Нужна точная цена по вашим размерам?") %}
+  <a href="/#calculator" class="btn-light">{{ icon("calculator", "w-4 h-4") }}Открыть калькулятор</a>
+  <button type="button" class="btn-primary bg-amber-light text-graphite hover:bg-amber-tint" data-open-dialog="measurer-modal">Вызвать замерщика</button>
+{% endcall %}
+{% endblock %}

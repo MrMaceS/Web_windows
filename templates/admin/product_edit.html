@@ -1,0 +1,85 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ product.name }} — Админка{% endblock %}
+{% block content %}
+<a href="/admin/catalog/products?category_id={{ product.category_id }}" class="text-sm text-graphite-soft hover:underline">← К списку товаров</a>
+<h1 class="text-2xl font-bold text-graphite mt-2 mb-6">{{ product.name }}</h1>
+
+<div class="grid md:grid-cols-3 gap-6 [&>*]:min-w-0">
+  <form method="post" action="/admin/catalog/products/{{ product.id }}" class="md:col-span-2 card p-5 space-y-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div>
+      <label class="field-label">Название</label>
+      <input aria-label="Название" type="text" name="name" value="{{ product.name }}" required class="field">
+    </div>
+    <div>
+      <label class="field-label">Короткое описание</label>
+      <input aria-label="Короткое описание" type="text" name="short_description" value="{{ product.short_description or '' }}" class="field">
+    </div>
+    <div>
+      <label class="field-label">Описание (HTML)</label>
+      <textarea aria-label="Описание (HTML)" name="description_html" rows="4" class="field font-mono text-xs">{{ product.description_html or '' }}</textarea>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="field-label">Тип конструкции (для цены)</label>
+        <input aria-label="Тип конструкции (для цены)" type="text" name="calculator_window_type" value="{{ product.calculator_window_type or '' }}" list="window-type-options" class="field" placeholder="напр. Окно">
+        <datalist id="window-type-options">
+          {% for label in window_type_labels %}<option value="{{ label }}">{% endfor %}
+        </datalist>
+      </div>
+      <div>
+        <label class="field-label">Профиль (для цены)</label>
+        <input aria-label="Профиль (для цены)" type="text" name="calculator_profile_type" value="{{ product.calculator_profile_type or '' }}" list="profile-options" class="field" placeholder="напр. Стандарт (70 мм)">
+        <datalist id="profile-options">
+          {% for label in profile_labels %}<option value="{{ label }}">{% endfor %}
+        </datalist>
+      </div>
+    </div>
+    <p class="text-xs text-graphite-soft">Должно ТОЧНО совпадать с активным вариантом в разделе "Цены" — иначе карточка честно покажет "цена по расчёту" вместо цифры. Оставьте пустым, если товар вне модели цен (двери, готовые окна).</p>
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" name="is_active" {% if product.is_active %}checked{% endif %}> Товар активен
+    </label>
+    <button type="submit" class="btn-primary">Сохранить</button>
+  </form>
+
+  <div class="space-y-6">
+    <div class="card p-5">
+      <h2 class="font-bold text-graphite mb-3">Характеристики</h2>
+      {% for opt in product.options %}
+      <div class="flex items-center justify-between gap-2 py-1.5 border-b border-steelline last:border-0 text-sm">
+        <span>{{ opt.group_label }}: {{ opt.value_label }}</span>
+        <form method="post" action="/admin/catalog/products/{{ product.id }}/options/{{ opt.id }}/delete">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="text-red-700 text-xs hover:underline">Удалить</button>
+        </form>
+      </div>
+      {% endfor %}
+      <form method="post" action="/admin/catalog/products/{{ product.id }}/options/add" class="flex gap-2 mt-3">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="text" aria-label="Название группы опции" name="group_label" placeholder="Профиль" required class="field py-1.5 text-sm">
+        <input type="text" aria-label="Значение опции" name="value_label" placeholder="70 мм, 5 камер" required class="field py-1.5 text-sm">
+        <button type="submit" class="btn-secondary text-xs px-3">+</button>
+      </form>
+    </div>
+
+    <div class="card p-5">
+      <h2 class="font-bold text-graphite mb-3">Галерея</h2>
+      {% for img in product.images %}
+      <div class="flex items-center justify-between gap-2 py-1.5 border-b border-steelline last:border-0 text-sm">
+        <span class="truncate">{{ img.image_path }}</span>
+        <form method="post" action="/admin/catalog/products/{{ product.id }}/images/{{ img.id }}/delete">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="text-red-700 text-xs hover:underline shrink-0">Удалить</button>
+        </form>
+      </div>
+      {% endfor %}
+      <form method="post" action="/admin/catalog/products/{{ product.id }}/images/add" class="space-y-2 mt-3">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="text" aria-label="Путь к изображению" name="image_path" placeholder="/static/images/catalog/file.webp" required class="field py-1.5 text-sm">
+        <input type="text" aria-label="Alt-текст изображения" name="alt_text" placeholder="Alt-текст" required class="field py-1.5 text-sm">
+        <button type="submit" class="btn-secondary text-xs px-3 w-full">Добавить фото</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

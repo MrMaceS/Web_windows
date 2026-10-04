@@ -1,0 +1,96 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Дашборд — Админка{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-graphite mb-6">Дашборд</h1>
+
+<div class="grid grid-cols-3 gap-4 mb-8">
+  <div class="card p-5">
+    <div class="text-sm text-graphite-soft">Всего заявок</div>
+    <div class="text-3xl font-extrabold text-graphite">{{ totals.total }}</div>
+  </div>
+  <div class="card p-5">
+    <div class="text-sm text-graphite-soft">Сегодня</div>
+    <div class="text-3xl font-extrabold text-graphite">{{ totals.today }}</div>
+  </div>
+  <div class="card p-5">
+    <div class="text-sm text-graphite-soft">За 7 дней</div>
+    <div class="text-3xl font-extrabold text-graphite">{{ totals.week }}</div>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-6 mb-8">
+  <div class="card p-5">
+    <h2 class="font-bold text-graphite mb-3">Заявки по источнику (14 дней)</h2>
+    <table class="w-full text-sm">
+      <tbody>
+        {% for source, count in by_source %}
+        <tr class="border-b border-steelline last:border-0">
+          <td class="py-1.5">{{ source }}</td>
+          <td class="py-1.5 text-right font-semibold">{{ count }}</td>
+        </tr>
+        {% else %}
+        <tr><td class="py-1.5 text-graphite-soft">Нет данных</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card p-5">
+    <h2 class="font-bold text-graphite mb-3">Статус доставки в Telegram (14 дней)</h2>
+    <table class="w-full text-sm">
+      <tbody>
+        {% for status, count in by_telegram_status %}
+        <tr class="border-b border-steelline last:border-0">
+          <td class="py-1.5">
+            {% if status == "sent" %}<span class="badge-confirm">доставлено</span>
+            {% elif status == "failed" %}<span class="text-red-600 font-medium">ошибка</span>
+            {% else %}<span class="text-graphite-soft">в очереди</span>{% endif %}
+          </td>
+          <td class="py-1.5 text-right font-semibold">{{ count }}</td>
+        </tr>
+        {% else %}
+        <tr><td class="py-1.5 text-graphite-soft">Нет данных</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card p-5 mb-8">
+  <h2 class="font-bold text-graphite mb-3">Заявки по дням (14 дней)</h2>
+  <div class="flex items-end gap-1 h-32">
+    {% set max_count = (by_day|map(attribute=1)|max) or 1 %}
+    {% for day, count in by_day %}
+    <div class="flex-1 min-w-0 flex flex-col items-center justify-end h-full" title="{{ day }}: {{ count }}">
+      <div class="w-full bg-amber rounded-t" style="height: {{ (count / max_count * 100)|round|int if max_count else 0 }}%; min-height: {{ '2px' if count == 0 else '4px' }};"></div>
+      <div class="hidden sm:block text-[10px] text-graphite-soft mt-1 max-w-full truncate">{{ day }}</div>
+      <span class="sr-only">{{ day }}: {{ count }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card p-5">
+  <h2 class="font-bold text-graphite mb-3">Топ UTM-кампаний (14 дней)</h2>
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="text-left border-b border-steelline text-graphite-soft">
+        <th class="py-1.5 font-medium">Источник</th>
+        <th class="py-1.5 font-medium">Кампания</th>
+        <th class="py-1.5 font-medium text-right">Заявок</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for (utm_source, utm_campaign), count in top_utm %}
+      <tr class="border-b border-steelline last:border-0">
+        <td class="py-1.5">{{ utm_source }}</td>
+        <td class="py-1.5">{{ utm_campaign }}</td>
+        <td class="py-1.5 text-right font-semibold">{{ count }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" class="py-1.5 text-graphite-soft">Нет данных с UTM-метками за этот период</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

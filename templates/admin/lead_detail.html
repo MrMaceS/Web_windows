@@ -1,0 +1,75 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Заявка №{{ lead.id }} — Админка{% endblock %}
+{% block content %}
+<a href="/admin/leads" class="text-sm text-graphite-soft hover:underline">← К списку заявок</a>
+<h1 class="text-2xl font-bold text-graphite mt-2 mb-6">Заявка №{{ lead.id }}</h1>
+
+<div class="grid md:grid-cols-3 gap-6">
+  <div class="md:col-span-2 card p-5">
+    <dl class="grid grid-cols-2 gap-y-3 text-sm">
+      <dt class="text-graphite-soft">Дата</dt><dd>{{ lead.created_at.strftime("%d.%m.%Y %H:%M") if lead.created_at else "—" }}</dd>
+      <dt class="text-graphite-soft">Источник</dt><dd>{{ lead.source }}</dd>
+      <dt class="text-graphite-soft">Имя</dt><dd>{{ lead.name or "—" }}</dd>
+      <dt class="text-graphite-soft">Телефон</dt><dd>{{ lead.phone }}</dd>
+      <dt class="text-graphite-soft">Согласие на обработку ПД</dt><dd>{{ "Да" if lead.consent_given else "Нет" }}</dd>
+      {% if lead.window_type %}
+      <dt class="text-graphite-soft">Калькулятор</dt>
+      <dd>{{ lead.window_type }}, {{ lead.profile_type }}, {{ lead.width_mm }}×{{ lead.height_mm }} мм, {{ lead.quantity }} шт.</dd>
+      <dt class="text-graphite-soft">Расчётная цена</dt><dd class="font-semibold">{{ "{:,}".format(lead.calculated_price|int).replace(",", " ") if lead.calculated_price else "—" }} ₽</dd>
+      {% endif %}
+      {% if lead.comment %}
+      <dt class="text-graphite-soft">Комментарий</dt><dd>{{ lead.comment }}</dd>
+      {% endif %}
+      {% if lead.utm_source or lead.utm_medium or lead.utm_campaign %}
+      <dt class="text-graphite-soft">UTM</dt>
+      <dd>{{ lead.utm_source or "—" }} / {{ lead.utm_medium or "—" }} / {{ lead.utm_campaign or "—" }}</dd>
+      {% endif %}
+    </dl>
+
+    {% if config %}
+    <h2 class="font-bold text-graphite mt-6 mb-2">Расшифровка расчёта (на момент заявки)</h2>
+    <table class="w-full text-sm">
+      <tbody>
+        {% for key, label in [("base_price","База"), ("multiplier","Множитель"), ("area_m2","Площадь, м²"), ("subtotal","Сумма до скидки"), ("discount_percent","Скидка, %"), ("discount_amount","Сумма скидки"), ("total_price","Итого")] %}
+        <tr class="border-b border-steelline last:border-0">
+          <td class="py-1.5 text-graphite-soft">{{ label }}</td>
+          <td class="py-1.5 text-right font-medium">{{ config.get(key) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+
+  <div class="card p-5">
+    <h2 class="font-bold text-graphite mb-3">Рабочий статус</h2>
+    <form method="post" action="/admin/leads/{{ lead.id }}/status" class="space-y-3 mb-6">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <select name="manager_status" class="field" aria-label="Рабочий статус заявки">
+        {% for value, label in [("new","Новая"), ("contacted","На связи"), ("closed","Закрыта")] %}
+        <option value="{{ value }}" {% if lead.manager_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn-primary w-full text-sm">Сохранить статус</button>
+    </form>
+
+    <h2 class="font-bold text-graphite mb-3">Доставка в Telegram</h2>
+    <p class="text-sm text-graphite-soft mb-1">
+      Статус:
+      {% if lead.telegram_status == "sent" %}<span class="badge-confirm">доставлено</span>
+      {% elif lead.telegram_status == "failed" %}<span class="text-red-600 font-medium">ошибка</span>
+      {% else %}<span class="text-graphite-soft">в очереди</span>{% endif %}
+    </p>
+    <p class="text-sm text-graphite-soft mb-1">Попыток: {{ lead.telegram_attempts }}</p>
+    {% if lead.telegram_last_attempt_at %}
+    <p class="text-sm text-graphite-soft mb-3">Последняя попытка: {{ lead.telegram_last_attempt_at.strftime("%d.%m.%Y %H:%M") }}</p>
+    {% endif %}
+    {% if lead.telegram_status != "sent" %}
+    <form method="post" action="/admin/leads/{{ lead.id }}/retry-telegram">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit" class="btn-secondary w-full text-sm">Отправить повторно</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

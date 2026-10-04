@@ -1,0 +1,18 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Вход — Админка{% endblock %}
+{% block content %}
+<div class="max-w-sm mx-auto card p-6 mt-16">
+  <h1 class="text-xl font-bold text-graphite mb-5">Вход в админку</h1>
+  <form method="post" action="/admin/login" class="space-y-4">
+    <div>
+      <label for="username" class="field-label">Логин</label>
+      <input id="username" name="username" type="text" required autofocus class="field">
+    </div>
+    <div>
+      <label for="password" class="field-label">Пароль</label>
+      <input id="password" name="password" type="password" required class="field">
+    </div>
+    <button type="submit" class="btn-primary w-full">Войти</button>
+  </form>
+</div>
+{% endblock %}

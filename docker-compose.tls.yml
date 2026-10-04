@@ -1,0 +1,10 @@
+# Override для HTTPS. Запуск: docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d
+# Перед этим: nginx/nginx.https.conf.example -> nginx/nginx.conf, домен заменён, сертификат выпущен (docs/DEPLOY_TLS.md).
+# Списки ports/volumes в Compose при слиянии дополняются, поэтому здесь только то, чего нет в основном файле.
+services:
+  nginx:
+    ports:
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro   # сертификаты certbot
+      - ./certbot-www:/var/www/certbot:ro      # webroot для HTTP-01 (продление без остановки сайта)

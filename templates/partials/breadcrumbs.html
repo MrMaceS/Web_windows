@@ -1,0 +1,32 @@
+{% macro render_breadcrumbs(items, settings) -%}
+<nav aria-label="Хлебные крошки" class="max-w-container mx-auto px-4 pt-1 text-sm text-graphite-soft">
+  <ol class="flex flex-wrap items-center gap-1">
+    {% for label, url in items %}
+      {% if not loop.last %}
+      <li class="flex items-center gap-1">
+        <a href="{{ url }}" class="inline-flex items-center min-h-[44px] pr-1 hover:text-graphite">{{ label }}</a>
+        <span aria-hidden="true">/</span>
+      </li>
+      {% else %}
+      <li aria-current="page" class="text-graphite font-medium">{{ label }}</li>
+      {% endif %}
+    {% endfor %}
+  </ol>
+</nav>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {% for label, url in items %}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index }},
+      "name": {{ label|tojson }}{% if url %},
+      "item": {{ (settings.domain ~ url)|tojson }}{% endif %}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{%- endmacro %}

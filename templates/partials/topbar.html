@@ -1,0 +1,18 @@
+{% from "partials/macros.html" import icon %}
+<aside class="hidden md:block bg-graphite text-cream/90 text-xs" aria-label="Контакты и режим работы">
+  <div class="max-w-container mx-auto px-4 py-1.5 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <span class="inline-flex items-center gap-1.5">{{ icon("map-pin", "w-3.5 h-3.5") }}{{ settings.company_region }}</span>
+      <span class="inline-flex items-center gap-1.5">{{ icon("clock", "w-3.5 h-3.5") }}{{ settings.company_work_hours }}</span>
+    </div>
+    <div class="flex items-center gap-2">
+      {% if settings.whatsapp_link %}
+      <a href="{{ settings.whatsapp_link }}" class="px-2 py-2 hover:text-white" aria-label="Написать в WhatsApp" rel="noopener">WhatsApp</a>
+      {% endif %}
+      {% if settings.telegram_link %}
+      <a href="{{ settings.telegram_link }}" class="px-2 py-2 hover:text-white" aria-label="Написать в Telegram" rel="noopener">Telegram</a>
+      {% endif %}
+      <a href="{{ settings.company_phone|tel }}" class="inline-flex items-center gap-1.5 px-2 py-2 font-semibold hover:text-white">{{ icon("phone", "w-3.5 h-3.5") }}{{ settings.company_phone }}</a>
+    </div>
+  </div>
+</aside>

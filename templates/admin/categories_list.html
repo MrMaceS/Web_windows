@@ -1,0 +1,30 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Категории — Админка{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-graphite mb-6">Категории каталога</h1>
+
+<div class="card overflow-x-auto" tabindex="0" role="region" aria-label="Список категорий, таблица прокручивается по горизонтали">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="text-left border-b border-steelline text-graphite-soft">
+        <th class="py-2 px-3 font-medium">Название</th>
+        <th class="py-2 px-3 font-medium">URL</th>
+        <th class="py-2 px-3 font-medium">Родитель</th>
+        <th class="py-2 px-3 font-medium">Активна</th>
+        <th class="py-2 px-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for category in categories %}
+      <tr class="border-b border-steelline last:border-0 hover:bg-mist">
+        <td class="py-2 px-3">{{ category.name }}</td>
+        <td class="py-2 px-3 text-graphite-soft">/{{ (category.parent.slug ~ "/") if category.parent else "" }}{{ category.slug }}/</td>
+        <td class="py-2 px-3">{{ category.parent.name if category.parent else "—" }}</td>
+        <td class="py-2 px-3">{{ "Да" if category.is_active else "Нет" }}</td>
+        <td class="py-2 px-3"><a href="/admin/catalog/categories/{{ category.id }}" class="text-amber-dark hover:underline">Редактировать</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

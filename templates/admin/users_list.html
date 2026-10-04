@@ -1,0 +1,62 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Пользователи — Админка{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-graphite mb-6">Пользователи админки</h1>
+
+<div class="grid md:grid-cols-3 gap-6">
+  <div class="md:col-span-2 card overflow-x-auto" tabindex="0" role="region" aria-label="Список пользователей, таблица прокручивается по горизонтали">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left border-b border-steelline text-graphite-soft">
+          <th class="py-2 px-3 font-medium">Логин</th>
+          <th class="py-2 px-3 font-medium">Роль</th>
+          <th class="py-2 px-3 font-medium">Активен</th>
+          <th class="py-2 px-3 font-medium">Последний вход</th>
+          <th class="py-2 px-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr class="border-b border-steelline last:border-0">
+          <td class="py-2 px-3">{{ user.username }}</td>
+          <td class="py-2 px-3">{{ "Администратор" if user.role == "admin" else "Менеджер" }}</td>
+          <td class="py-2 px-3">{{ "Да" if user.is_active else "Нет" }}</td>
+          <td class="py-2 px-3 text-graphite-soft">{{ user.last_login_at.strftime("%d.%m.%Y %H:%M") if user.last_login_at else "—" }}</td>
+          <td class="py-2 px-3">
+            {% if user.is_active and user.id != admin.id %}
+            <form method="post" action="/admin/users/{{ user.id }}/deactivate">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button type="submit" class="text-red-700 text-xs hover:underline">Деактивировать</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card p-5">
+    <h2 class="font-bold text-graphite mb-3">Новый пользователь</h2>
+    <form method="post" action="/admin/users/create" class="space-y-3">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div>
+        <label class="field-label">Логин</label>
+        <input aria-label="Логин" type="text" name="username" required class="field">
+      </div>
+      <div>
+        <label class="field-label">Пароль</label>
+        <input aria-label="Пароль" type="password" name="password" required minlength="8" class="field">
+      </div>
+      <div>
+        <label class="field-label">Роль</label>
+        <select aria-label="Роль" name="role" class="field">
+          <option value="manager">Менеджер (только заявки)</option>
+          <option value="admin">Администратор (полный доступ)</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-primary w-full text-sm">Создать</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Цены — Админка{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-graphite mb-2">Цены калькулятора</h1>
+<p class="text-sm text-graphite-soft mb-6">Изменения применяются мгновенно ко всем новым расчётам — и в калькуляторе на сайте, и в карточках каталога ("цена от" считается вживую через эти же значения).</p>
+
+<div class="grid md:grid-cols-2 gap-6 [&>*]:min-w-0">
+  <div class="card p-5">
+    <h2 class="font-bold text-graphite mb-3">Базовая цена по типу конструкции (₽/м²)</h2>
+    {% for rule in window_rules %}
+    <form method="post" action="/admin/price-rules/{{ rule.id }}" class="flex flex-wrap items-center gap-2 py-2 border-b border-steelline last:border-0">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <span class="flex-1 min-w-[8rem] text-sm">{{ rule.label }}</span>
+      <input type="number" step="1" name="value" value="{{ rule.value }}" class="field w-28 py-1.5" aria-label="Цена за м², ₽: {{ rule.label }}">
+      <label class="flex items-center gap-1 text-xs text-graphite-soft">
+        <input type="checkbox" name="is_active" {% if rule.is_active %}checked{% endif %}> вкл.
+      </label>
+      <button type="submit" class="btn-secondary text-xs px-3 py-1.5">Сохранить</button>
+    </form>
+    {% endfor %}
+  </div>
+
+  <div class="card p-5">
+    <h2 class="font-bold text-graphite mb-3">Коэффициент профиля</h2>
+    {% for rule in profile_rules %}
+    <form method="post" action="/admin/price-rules/{{ rule.id }}" class="flex flex-wrap items-center gap-2 py-2 border-b border-steelline last:border-0">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <span class="flex-1 min-w-[8rem] text-sm">{{ rule.label }}</span>
+      <input type="number" step="0.1" name="value" value="{{ rule.value }}" class="field w-24 py-1.5" aria-label="Коэффициент: {{ rule.label }}">
+      <label class="flex items-center gap-1 text-xs text-graphite-soft">
+        <input type="checkbox" name="is_active" {% if rule.is_active %}checked{% endif %}> вкл.
+      </label>
+      <button type="submit" class="btn-secondary text-xs px-3 py-1.5">Сохранить</button>
+    </form>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

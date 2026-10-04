@@ -1,0 +1,42 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Товары — Админка{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-graphite mb-6">Товары</h1>
+
+<form method="get" action="/admin/catalog/products" class="mb-6 flex flex-wrap items-center gap-3">
+  <select name="category_id" class="field w-auto" aria-label="Фильтр: категория">
+    <option value="">Все категории</option>
+    {% for c in categories %}
+    <option value="{{ c.id }}" {% if selected_category_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn-secondary">Применить</button>
+</form>
+
+<div class="card overflow-x-auto" tabindex="0" role="region" aria-label="Список товаров, таблица прокручивается по горизонтали">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="text-left border-b border-steelline text-graphite-soft">
+        <th class="py-2 px-3 font-medium">Название</th>
+        <th class="py-2 px-3 font-medium">Категория</th>
+        <th class="py-2 px-3 font-medium">Калькулятор</th>
+        <th class="py-2 px-3 font-medium">Активен</th>
+        <th class="py-2 px-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr class="border-b border-steelline last:border-0 hover:bg-mist">
+        <td class="py-2 px-3">{{ product.name }}</td>
+        <td class="py-2 px-3 text-graphite-soft">{{ product.category.name }}</td>
+        <td class="py-2 px-3 text-graphite-soft">
+          {% if product.calculator_window_type %}{{ product.calculator_window_type }} / {{ product.calculator_profile_type }}{% else %}—{% endif %}
+        </td>
+        <td class="py-2 px-3">{{ "Да" if product.is_active else "Нет" }}</td>
+        <td class="py-2 px-3"><a href="/admin/catalog/products/{{ product.id }}" class="text-amber-dark hover:underline">Редактировать</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

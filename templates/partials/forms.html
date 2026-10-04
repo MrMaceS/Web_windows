@@ -1,0 +1,11 @@
+{% from "partials/macros.html" import icon, lead_form, lead_success %}
+
+<div id="hero-form-wrap" data-hide-sticky class="card p-6 md:p-8 shadow-sm">
+  <h2 class="text-xl font-bold mb-1 text-graphite">Вызвать замерщика бесплатно</h2>
+  <p class="text-graphite-soft text-sm mb-5">Перезвоним в рабочее время и обсудим детали</p>
+
+  {{ lead_form("hero", "hero_form", "Получить бесплатный замер", settings) }}
+  <p class="mt-4 flex items-center justify-center gap-1.5 text-xs text-graphite-soft">{{ icon("lock", "w-3.5 h-3.5") }}Без спама — звоним по вашей заявке один раз</p>
+
+  {{ lead_success("hero") }}
+</div>

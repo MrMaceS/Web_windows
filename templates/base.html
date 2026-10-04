@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru" data-ym-id="{{ settings.yandex_metrika_id }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FAF8F5">
+<title>{% block title %}{{ settings.company_name }} — установка пластиковых окон{% endblock %}</title>
+<meta name="description" content="{% block description %}Пластиковые окна с установкой. Бесплатный замер, честная цена, гарантия на монтаж. {{ settings.company_region }}.{% endblock %}">
+<link rel="canonical" href="{{ settings.domain }}{{ request.url.path }}">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ settings.company_name }}">
+<meta property="og:title" content="{% block og_title %}{{ settings.company_name }} — установка пластиковых окон{% endblock %}">
+<meta property="og:description" content="{% block og_description %}Бесплатный замер и честная цена на пластиковые окна. {{ settings.company_region }}.{% endblock %}">
+<meta property="og:url" content="{{ settings.domain }}{{ request.url.path }}">
+{# TODO: og:image — добавить реальное изображение продукта/офиса перед публикацией #}
+
+<link rel="preload" href="/static/fonts/manrope-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ asset('css/output.css') }}">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": {{ settings.company_name|tojson }},
+  "telephone": {{ settings.company_phone|tojson }},
+  "address": {{ settings.company_address|tojson }},
+  "areaServed": {{ settings.company_region|tojson }},
+  "url": {{ settings.domain|tojson }}
+}
+</script>
+
+<script src="{{ asset('js/boot.js') }}"></script>
+
+{% block extra_head %}{% endblock %}
+</head>
+<body class="bg-cream text-graphite">
+
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:btn-primary">Перейти к содержимому</a>
+
+{% include "partials/topbar.html" %}
+{% include "partials/header.html" %}
+
+<main id="main" tabindex="-1" class="outline-none">
+  {% block content %}{% endblock %}
+</main>
+
+{% include "partials/footer.html" %}
+{% include "partials/modals.html" %}
+
+{% block sticky_cta %}
+<aside class="sticky-cta" data-sticky-cta aria-label="Быстрые действия">
+  <a href="{{ settings.company_phone|tel }}" class="btn-secondary flex-1 text-sm px-2">Позвонить</a>
+  <a href="/#calculator" class="btn-secondary flex-1 text-sm px-2">Рассчитать</a>
+  <button type="button" class="btn-primary flex-1 text-sm px-2" data-open-dialog="measurer-modal">Замер</button>
+</aside>
+<div class="h-20 md:hidden" aria-hidden="true"></div>
+{% endblock %}
+
+<script src="{{ asset('js/analytics.js') }}" defer></script>
+<script src="{{ asset('js/modal.js') }}" defer></script>
+<script src="{{ asset('js/phone-mask.js') }}" defer></script>
+<script src="{{ asset('js/main.js') }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

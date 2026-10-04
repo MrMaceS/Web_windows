@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, window_drawing %}
+
+{% block title %}Страница не найдена — {{ settings.company_name }}{% endblock %}
+
+{% block sticky_cta %}
+<aside class="sticky-cta" data-sticky-cta aria-label="Быстрые действия">
+  <a href="/" class="btn-primary w-full text-sm">{{ icon("home", "w-4 h-4") }}На главную</a>
+</aside>
+<div class="h-20 md:hidden" aria-hidden="true"></div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-14 md:py-20 text-center">
+  <p class="eyebrow mb-6">Ошибка 404</p>
+  <div class="relative mx-auto mb-8 w-full max-w-xs text-graphite/70" aria-hidden="true">
+    <span class="absolute inset-0 flex items-center justify-center text-7xl font-extrabold text-graphite/10 select-none">404</span>
+    {{ window_drawing("relative w-full") }}
+  </div>
+  <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-graphite mb-3">Страница не найдена</h1>
+  <p class="text-graphite-soft mb-8">Возможно, раздел переехал или ссылка устарела. Вернитесь на главную или выберите нужный раздел.</p>
+  <div class="flex flex-col sm:flex-row gap-3 justify-center mb-12">
+    <a href="/" class="btn-primary">{{ icon("home", "w-4 h-4") }}На главную</a>
+    <a href="/#catalog" class="btn-secondary">{{ icon("grid", "w-4 h-4") }}Перейти в каталог</a>
+  </div>
+
+  <h2 class="text-sm font-semibold uppercase tracking-wider text-graphite-soft mb-4">Полезные разделы</h2>
+  <ul class="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 text-left">
+    <li><a href="/#calculator" class="card flex items-center gap-3 p-4 h-full hover:border-amber/60 transition-colors"><span class="icon-tile">{{ icon("calculator", "w-5 h-5") }}</span><span class="text-sm font-semibold text-graphite">Калькулятор стоимости</span></a></li>
+    <li><button type="button" class="card flex items-center gap-3 p-4 w-full h-full text-left hover:border-amber/60 transition-colors" data-open-dialog="measurer-modal" aria-haspopup="dialog"><span class="icon-tile">{{ icon("ruler", "w-5 h-5") }}</span><span class="text-sm font-semibold text-graphite">Вызвать замерщика</span></button></li>
+    <li><a href="#contacts" class="card flex items-center gap-3 p-4 h-full hover:border-amber/60 transition-colors"><span class="icon-tile">{{ icon("phone", "w-5 h-5") }}</span><span class="text-sm font-semibold text-graphite">Контакты</span></a></li>
+    <li><a href="/#faq" class="card flex items-center gap-3 p-4 h-full hover:border-amber/60 transition-colors"><span class="icon-tile">{{ icon("message", "w-5 h-5") }}</span><span class="text-sm font-semibold text-graphite">Частые вопросы</span></a></li>
+  </ul>
+</div>
+{% endblock %}

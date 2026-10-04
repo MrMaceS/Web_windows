@@ -1,0 +1,52 @@
+{% from "partials/macros.html" import icon %}
+<footer id="contacts" class="bg-graphite text-cream/80 mt-16">
+  <div class="max-w-container mx-auto px-4 py-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+    <div>
+      <div class="flex items-center gap-2.5 text-lg font-extrabold text-white mb-4">
+        <span class="logo-mark bg-white/10">{{ icon("window", "w-5 h-5") }}</span>{{ settings.company_name }}
+      </div>
+      <p class="text-sm flex items-start gap-2 mb-2">{{ icon("map-pin", "w-4 h-4 mt-0.5") }}<span>{{ settings.company_region }}<br>{{ settings.company_address }}</span></p>
+      <p class="text-sm flex items-center gap-2">{{ icon("clock", "w-4 h-4") }}{{ settings.company_work_hours }}</p>
+    </div>
+
+    <div>
+      <div class="font-semibold text-white mb-3">Навигация</div>
+      <nav class="flex flex-col text-sm" aria-label="Навигация в футере">
+        <a href="/#catalog" class="hover:text-white tap-target justify-start">Каталог</a>
+        <a href="/#calculator" class="hover:text-white tap-target justify-start">Калькулятор</a>
+        {% if portfolio_items() %}<a href="/#portfolio" class="hover:text-white tap-target justify-start">Портфолио</a>{% endif %}
+        <a href="/#faq" class="hover:text-white tap-target justify-start">Вопросы и ответы</a>
+      </nav>
+    </div>
+
+    <div>
+      <div class="font-semibold text-white mb-3">Документы</div>
+      <nav class="flex flex-col text-sm" aria-label="Юридические документы">
+        <a href="/privacy" class="hover:text-white tap-target justify-start">Политика конфиденциальности</a>
+        <a href="/privacy#consent" class="hover:text-white tap-target justify-start">Согласие на обработку данных</a>
+      </nav>
+      {# TODO: реквизиты юр. лица (ИНН/ОГРН) — задать LEGAL_ENTITY_NAME в .env #}
+      {% if settings.legal_entity_name %}
+      <p class="text-xs text-cream/60 mt-3">{{ settings.legal_entity_name }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <div class="font-semibold text-white mb-3">Связь</div>
+      <a href="{{ settings.company_phone|tel }}" class="flex items-center gap-2 text-lg font-semibold text-white mb-2 min-h-[44px]">{{ icon("phone", "w-5 h-5") }}{{ settings.company_phone }}</a>
+      <div class="flex gap-4 text-sm">
+        {% if settings.whatsapp_link %}<a href="{{ settings.whatsapp_link }}" class="hover:text-white tap-target" rel="noopener">WhatsApp</a>{% endif %}
+        {% if settings.telegram_link %}<a href="{{ settings.telegram_link }}" class="hover:text-white tap-target" rel="noopener">Telegram</a>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# TODO: карта проезда — встроить lazy-loaded iframe с реальным адресом, когда он появится #}
+
+  <div class="border-t border-cream/10">
+    <div class="max-w-container mx-auto px-4 py-4 text-xs text-cream/60 flex flex-col sm:flex-row justify-between gap-2">
+      <span>© {{ settings.company_name }}, {{ current_year() }}. Все права защищены.</span>
+      <span>Все цены и сроки на сайте — предварительные, уточняются на замере.</span>
+    </div>
+  </div>
+</footer>

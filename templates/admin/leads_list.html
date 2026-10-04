@@ -1,0 +1,71 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Заявки — Админка{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-graphite mb-6">Заявки <span class="text-graphite-soft font-normal text-lg">({{ total }})</span></h1>
+
+{% if error %}
+<div class="card p-4 mb-6 border-red-300 bg-red-50 text-red-700 text-sm">{{ error }}</div>
+{% endif %}
+
+<form method="get" action="/admin/leads" class="flex flex-wrap gap-3 mb-6">
+  <select name="source" class="field w-auto" aria-label="Фильтр: источник заявки">
+    <option value="">Все источники</option>
+    {% for value, label in [("hero_form","Hero-форма"), ("callback_widget","Обратный звонок"), ("calculator","Калькулятор")] %}
+    <option value="{{ value }}" {% if filters.source == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="telegram_status" class="field w-auto" aria-label="Фильтр: статус Telegram">
+    <option value="">Любой статус Telegram</option>
+    {% for value, label in [("pending","В очереди"), ("sent","Доставлено"), ("failed","Ошибка")] %}
+    <option value="{{ value }}" {% if filters.telegram_status == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="manager_status" class="field w-auto" aria-label="Фильтр: рабочий статус">
+    <option value="">Любой рабочий статус</option>
+    {% for value, label in [("new","Новая"), ("contacted","На связи"), ("closed","Закрыта")] %}
+    <option value="{{ value }}" {% if filters.manager_status == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn-secondary">Применить</button>
+</form>
+
+<div class="card overflow-x-auto" tabindex="0" role="region" aria-label="Список заявок, таблица прокручивается по горизонтали">
+  <table class="w-full text-sm min-w-[720px]">
+    <thead>
+      <tr class="text-left border-b border-steelline text-graphite-soft">
+        <th class="py-2 px-3 font-medium">Дата</th>
+        <th class="py-2 px-3 font-medium">Имя / телефон</th>
+        <th class="py-2 px-3 font-medium">Источник</th>
+        <th class="py-2 px-3 font-medium">Telegram</th>
+        <th class="py-2 px-3 font-medium">Статус</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lead in leads %}
+      <tr class="border-b border-steelline last:border-0 hover:bg-mist">
+        <td class="py-2 px-3"><a href="/admin/leads/{{ lead.id }}" class="hover:underline">{{ lead.created_at.strftime("%d.%m %H:%M") if lead.created_at else "—" }}</a></td>
+        <td class="py-2 px-3"><a href="/admin/leads/{{ lead.id }}" class="hover:underline">{{ lead.name or "—" }} · {{ lead.phone }}</a></td>
+        <td class="py-2 px-3">{{ lead.source }}</td>
+        <td class="py-2 px-3">
+          {% if lead.telegram_status == "sent" %}<span class="badge-confirm">доставлено</span>
+          {% elif lead.telegram_status == "failed" %}<span class="text-red-600 font-medium">ошибка ({{ lead.telegram_attempts }})</span>
+          {% else %}<span class="text-graphite-soft">в очереди</span>{% endif %}
+        </td>
+        <td class="py-2 px-3">{{ {"new": "Новая", "contacted": "На связи", "closed": "Закрыта"}.get(lead.manager_status, lead.manager_status) }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="py-6 px-3 text-center text-graphite-soft">Заявок не найдено</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if total_pages > 1 %}
+<div class="flex gap-2 mt-4 text-sm">
+  {% for p in range(1, total_pages + 1) %}
+  <a href="/admin/leads?page={{ p }}&source={{ filters.source }}&telegram_status={{ filters.telegram_status }}&manager_status={{ filters.manager_status }}"
+     class="tap-target px-3 py-1.5 rounded-lg {{ 'bg-amber text-white' if p == page else 'bg-paper border border-steelline text-graphite' }}">{{ p }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

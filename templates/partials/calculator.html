@@ -1,0 +1,141 @@
+{% from "partials/macros.html" import icon, section_head, lead_form, lead_success %}
+
+{# ВАЖНО: значения data-value — это PriceRule.label из БД (см. database.PriceRule).
+   Менять их нельзя без изменения правил цен на сервере. Цену считает ТОЛЬКО сервер. #}
+{% macro option_card(value, title, icon_name="", desc="", checked=False) %}
+<button type="button" role="radio" aria-checked="{{ 'true' if checked else 'false' }}" tabindex="{{ 0 if checked else -1 }}" class="calc-option group relative" data-value="{{ value }}">
+  {% if icon_name %}<span class="icon-tile">{{ icon(icon_name, "w-6 h-6") }}</span>{% endif %}
+  <span class="font-semibold text-graphite">{{ title }}</span>
+  {% if desc %}<span class="text-sm text-graphite-soft">{{ desc }}</span>{% endif %}
+  <span class="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-amber text-white opacity-0 group-aria-[checked=true]:opacity-100 transition-opacity" aria-hidden="true">{{ icon("check", "w-4 h-4") }}</span>
+</button>
+{% endmacro %}
+
+<section id="calculator" data-hide-sticky class="max-w-container mx-auto px-4 py-16 md:py-24">
+  {{ section_head("Рассчитайте стоимость окна", eyebrow="Калькулятор", lead="Цену рассчитывает сервер по актуальным правилам. Это предварительная оценка — точную сумму подтвердим на бесплатном замере.") }}
+
+  <div class="grid lg:grid-cols-[minmax(0,1fr)_20rem] gap-6 items-start reveal">
+    <div id="calc-widget" class="card p-5 sm:p-8">
+      <ol class="grid grid-cols-4 gap-1 bg-surface-low rounded-xl p-1 mb-8" aria-label="Шаги калькулятора">
+        <li class="calc-tab" data-calc-tab="1" aria-current="step"><span class="calc-tab-num">1</span><span class="hidden sm:inline">Тип</span></li>
+        <li class="calc-tab" data-calc-tab="2"><span class="calc-tab-num">2</span><span class="hidden sm:inline">Профиль</span></li>
+        <li class="calc-tab" data-calc-tab="3"><span class="calc-tab-num">3</span><span class="hidden sm:inline">Размеры</span></li>
+        <li class="calc-tab" data-calc-tab="4"><span class="calc-tab-num">4</span><span class="hidden sm:inline">Расчёт</span></li>
+      </ol>
+
+      <div id="calc-announce" class="sr-only" role="status" aria-live="polite"></div>
+
+      {# ── Шаг 1 ── #}
+      <div class="calc-step" data-calc-step="1">
+        <h3 class="text-xl font-bold text-graphite mb-1" tabindex="-1">Что устанавливаем?</h3>
+        <p class="text-sm text-graphite-soft mb-5">Выберите тип конструкции</p>
+        <div class="grid sm:grid-cols-2 gap-3" data-field="window_type" role="radiogroup" aria-label="Тип конструкции">
+          {{ option_card("Окно", "Окно", "window", "Для комнат и кухни", checked=True) }}
+          {{ option_card("Балкон", "Балкон", "balcony", "Остекление балкона") }}
+          {{ option_card("Лоджия", "Лоджия", "loggia", "Остекление лоджии") }}
+          {{ option_card("Витраж", "Витраж", "panorama", "Панорамные конструкции") }}
+        </div>
+        <div class="mt-8 flex justify-end"><button type="button" class="btn-primary w-full sm:w-auto" data-calc-next>Продолжить{{ icon("arrow-right", "w-4 h-4") }}</button></div>
+      </div>
+
+      {# ── Шаг 2 ── #}
+      <div class="calc-step hidden" data-calc-step="2">
+        <h3 class="text-xl font-bold text-graphite mb-1" tabindex="-1">Выберите профиль</h3>
+        <p class="text-sm text-graphite-soft mb-5">Толщина профиля влияет на тепло- и шумоизоляцию</p>
+        <div class="grid md:grid-cols-3 gap-3" data-field="profile_type" role="radiogroup" aria-label="Профиль">
+          {{ option_card("Эконом (58 мм)", "Эконом", "", "Профиль 58 мм, 3 камеры") }}
+          {{ option_card("Стандарт (70 мм)", "Стандарт", "", "Профиль 70 мм, 5 камер", checked=True) }}
+          {{ option_card("Премиум (82 мм)", "Премиум", "", "Профиль 82 мм, 7 камер") }}
+        </div>
+        <div class="mt-8 flex justify-end"><button type="button" class="btn-primary w-full sm:w-auto" data-calc-next>Продолжить{{ icon("arrow-right", "w-4 h-4") }}</button></div>
+      </div>
+
+      {# ── Шаг 3 ── #}
+      <div class="calc-step hidden" data-calc-step="3">
+        <h3 class="text-xl font-bold text-graphite mb-1" tabindex="-1">Укажите размеры</h3>
+        <p class="text-sm text-graphite-soft mb-5">Достаточно приблизительно — точно измерим на бесплатном замере</p>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label for="calc-width" class="field-label">Ширина, мм</label>
+            <input type="number" id="calc-width" inputmode="numeric" min="200" max="4000" step="1" value="1300" class="field" aria-describedby="calc-width-hint calc-width-error">
+            <p id="calc-width-hint" class="text-xs text-graphite-soft mt-1">от 200 до 4000</p>
+            <p id="calc-width-error" class="field-error-text hidden" role="alert"></p>
+          </div>
+          <div>
+            <label for="calc-height" class="field-label">Высота, мм</label>
+            <input type="number" id="calc-height" inputmode="numeric" min="200" max="4000" step="1" value="1400" class="field" aria-describedby="calc-height-hint calc-height-error">
+            <p id="calc-height-hint" class="text-xs text-graphite-soft mt-1">от 200 до 4000</p>
+            <p id="calc-height-error" class="field-error-text hidden" role="alert"></p>
+          </div>
+        </div>
+        <div class="max-w-[12rem]">
+          <label for="calc-quantity" class="field-label">Количество, шт</label>
+          <input type="number" id="calc-quantity" inputmode="numeric" min="1" max="50" step="1" value="1" class="field" aria-describedby="calc-quantity-hint calc-quantity-error">
+          <p id="calc-quantity-hint" class="text-xs text-graphite-soft mt-1">от 1 до 50</p>
+          <p id="calc-quantity-error" class="field-error-text hidden" role="alert"></p>
+        </div>
+        <div class="mt-8 flex justify-end"><button type="button" class="btn-primary w-full sm:w-auto" data-calc-submit>Показать расчёт{{ icon("arrow-right", "w-4 h-4") }}</button></div>
+      </div>
+
+      {# ── Шаг 4: loading / error / result ── #}
+      <div class="calc-step hidden" data-calc-step="4">
+        <h3 class="text-xl font-bold text-graphite mb-5" tabindex="-1">Предварительная стоимость</h3>
+
+        <div data-calc-state="loading" class="card p-6 mb-5" aria-busy="true">
+          <p class="text-sm font-medium text-graphite-soft mb-4">Считаем стоимость…</p>
+          <div class="skeleton h-10 w-48 mb-4"></div>
+          <div class="skeleton h-4 w-full mb-2"></div>
+          <div class="skeleton h-4 w-2/3"></div>
+        </div>
+
+        <div data-calc-state="error" class="hidden card p-6 mb-5 border-red-300 text-center" role="alert">
+          <span class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-700">{{ icon("alert", "w-6 h-6") }}</span>
+          <p class="text-red-700 font-medium mb-4" id="calc-error-text">Не удалось рассчитать стоимость.</p>
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <button type="button" class="btn-primary" data-calc-retry>{{ icon("refresh", "w-4 h-4") }}Повторить расчёт</button>
+            <button type="button" class="btn-secondary" data-calc-edit>Изменить параметры</button>
+          </div>
+        </div>
+
+        <div data-calc-state="result" class="hidden card p-6 mb-5 text-center">
+          <div class="text-sm text-graphite-soft mb-1">Предварительная стоимость</div>
+          <div class="text-4xl md:text-5xl font-extrabold text-graphite tabular-nums" id="calc-price">—</div>
+          <dl class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-graphite-soft">
+            <div class="flex gap-1.5"><dt>Площадь:</dt><dd class="font-medium text-graphite" id="calc-area">—</dd></div>
+            <div class="flex gap-1.5 hidden" id="calc-discount-row"><dt>Скидка:</dt><dd class="font-medium text-confirm" id="calc-discount">—</dd></div>
+          </dl>
+          <p class="text-xs text-graphite-soft mt-3">Точная цена — после бесплатного замера</p>
+        </div>
+
+        <div id="calc-lead-section" class="hidden">
+          <h4 class="text-lg font-bold mb-1 text-center text-graphite">Куда прислать точный расчёт?</h4>
+          <p class="text-graphite-soft text-sm text-center mb-4">Замерщик перепроверит размеры бесплатно</p>
+          <div class="max-w-sm mx-auto">
+            {{ lead_form("calc", "calculator", "Получить точный расчёт", settings, lead=False) }}
+            {{ lead_success("calc", "Расчёт отправлен", "Мы скоро свяжемся с вами.") }}
+          </div>
+        </div>
+
+        <button type="button" class="block mx-auto mt-5 text-sm text-graphite-soft underline tap-target" data-calc-restart>Начать заново</button>
+      </div>
+
+      <button type="button" class="hidden mt-6 text-sm text-graphite-soft font-medium tap-target gap-1.5" data-calc-back>{{ icon("arrow-left", "w-4 h-4") }}Назад</button>
+    </div>
+
+    {# Сводка выбора. Только отражает выбор пользователя; цена подставляется из ответа сервера. #}
+    <aside class="hidden lg:block card p-6 sticky top-24" aria-label="Ваш выбор">
+      <h3 class="font-bold text-graphite mb-4">Ваш выбор</h3>
+      <dl class="space-y-3 text-sm">
+        <div class="flex justify-between gap-3"><dt class="text-graphite-soft">Тип</dt><dd class="font-semibold text-graphite text-right" data-sum="type">Окно</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-graphite-soft">Профиль</dt><dd class="font-semibold text-graphite text-right" data-sum="profile">Стандарт (70 мм)</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-graphite-soft">Размеры</dt><dd class="font-semibold text-graphite text-right" data-sum="size">1300 × 1400 мм</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-graphite-soft">Количество</dt><dd class="font-semibold text-graphite text-right" data-sum="qty">1 шт.</dd></div>
+        <div class="flex justify-between gap-3 border-t border-steelline pt-3"><dt class="text-graphite-soft">Предварительно</dt><dd class="font-extrabold text-graphite text-right" data-sum="price">—</dd></div>
+      </dl>
+      <a href="{{ settings.company_phone|tel }}" class="mt-5 flex items-center gap-3 rounded-xl bg-surface-low p-4 hover:bg-steelline/60 transition-colors">
+        <span class="icon-tile">{{ icon("phone", "w-5 h-5") }}</span>
+        <span><span class="block text-sm font-semibold text-graphite">Нужна консультация?</span><span class="block text-sm text-graphite-soft">{{ settings.company_phone }}</span></span>
+      </a>
+    </aside>
+  </div>
+</section>

@@ -1,0 +1,82 @@
+x-app: &app
+  build: .
+  image: ${APP_IMAGE:-window-landing:local}
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-window_user}:${POSTGRES_PASSWORD:-window_pass}@db:5432/${POSTGRES_DB:-window_landing}
+    # Реальный IP клиента для rate limit (slowapi берёт request.client.host). Без этого за Nginx все посетители
+    # выглядят как один адрес: один человек исчерпывает лимит заявок и входа в админку для всех.
+    # "*" безопасно ТОЛЬКО потому, что сервис app не публикует порт наружу (достучаться до него можно лишь
+    # через nginx) и nginx перезаписывает X-Forwarded-For. Не добавляйте `ports:` сервису app.
+    # Лежит в общем якоре, а не в app: `environment:` в сервисе заменил бы весь словарь целиком (в т.ч. DATABASE_URL).
+    FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-*}
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-window_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-window_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-window_landing}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-window_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  app:
+    <<: *app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    <<: *app
+    restart: unless-stopped
+    command: ["arq", "worker.WorkerSettings"]
+    healthcheck:
+      disable: true
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  migrate:
+    <<: *app
+    command: ["alembic", "upgrade", "head"]
+    healthcheck:
+      disable: true
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./static:/app/static:ro
+    depends_on:
+      - app
+
+volumes:
+  pgdata:
+  redisdata:

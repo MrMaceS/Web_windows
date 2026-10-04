@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Админка — {{ settings.company_name }}{% endblock %}</title>
+<meta name="robots" content="noindex, nofollow">
+{% if admin %}<meta name="csrf-token" content="{{ csrf_token }}">{% endif %}
+<link rel="stylesheet" href="{{ asset('css/output.css') }}">
+</head>
+<body class="bg-mist text-graphite min-h-screen flex flex-col">
+
+{% if admin %}
+<header class="bg-graphite text-white">
+  <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-6">
+      <a href="/admin/" class="font-bold">Админка</a>
+      <nav class="hidden md:flex items-center gap-4 text-sm text-white/80">
+        <a href="/admin/leads" class="hover:text-white">Заявки</a>
+        {% if admin.role == "admin" %}
+        <a href="/admin/price-rules" class="hover:text-white">Цены</a>
+        <a href="/admin/catalog/categories" class="hover:text-white">Каталог</a>
+        <a href="/admin/users" class="hover:text-white">Пользователи</a>
+        <a href="/admin/audit" class="hover:text-white">Журнал</a>
+        {% endif %}
+      </nav>
+    </div>
+    <div class="flex items-center gap-3 text-sm">
+      <span class="text-white/70">{{ admin.username }} ({{ "Администратор" if admin.role == "admin" else "Менеджер" }})</span>
+      <form method="post" action="/admin/logout">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="underline">Выйти</button>
+      </form>
+    </div>
+  </div>
+</header>
+{% endif %}
+
+<main class="flex-1 max-w-6xl mx-auto px-4 py-8 w-full">
+  {% if error %}
+  <div class="card border-red-300 bg-red-50 text-red-700 p-3 mb-6 text-sm" role="alert">{{ error }}</div>
+  {% endif %}
+  {% if success %}
+  <div class="badge-confirm mb-6">{{ success }}</div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>
